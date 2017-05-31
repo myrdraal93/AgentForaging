@@ -1,0 +1,12 @@
+MAS foraging {
+
+	infrastructure: Centralised
+
+	environment: env.ForagingEnvironment(gui)
+
+	agents:
+		ant #100;
+
+	aslSourcePath:
+		"src/asl";
+}
