@@ -1,7 +1,6 @@
 package env;
 
 import java.awt.Color;
-import java.awt.Font;
 import java.awt.Graphics;
 
 import jason.environment.grid.GridWorldView;
@@ -17,8 +16,6 @@ public class ForagingView extends GridWorldView{
 	public ForagingView(ForagingModel model) {
 		super(model, "Foraging", 700);
 		this.model = model;
-        this.defaultFont = new Font("Arial", Font.BOLD, 16); // change default
-                                                             // font
         this.setVisible(true);
         this.repaint();
 	}
@@ -28,13 +25,8 @@ public class ForagingView extends GridWorldView{
     public void draw(final Graphics g, final int x, final int y,
             final int object) {
         switch (object) {
-            case ForagingModel.NEST:{
-                super.drawAgent(g, x, y, Color.RED, -1);
-            }break;
-            
-            case ForagingModel.FOOD:{
-            	super.drawAgent(g, x, y, Color.YELLOW, -1);
-            }break;
+            case ForagingModel.NEST:super.drawAgent(g, x, y, Color.RED, -1);break;
+            case ForagingModel.FOOD:super.drawAgent(g, x, y, Color.YELLOW, -1);break;
             default:break;
         }
     }
@@ -48,5 +40,4 @@ public class ForagingView extends GridWorldView{
         }
     }
     
-
 }

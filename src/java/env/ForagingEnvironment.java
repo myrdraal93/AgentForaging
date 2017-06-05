@@ -12,6 +12,7 @@ import jason.util.Pair;
 public class ForagingEnvironment extends Environment {
 
     private ForagingModel model;
+    private int value;
     private static final String MOVE_TO_NEXT_POSITION = "moveToNextPosition";
     private static final String RELEASE_PHEROMONE = "releasePheromone";
     private static final String PICK_UP_FOOD = "pickUpFood";
@@ -25,14 +26,23 @@ public class ForagingEnvironment extends Environment {
     private static final String REMOVE_COOPERATIVE_TRANSPORT="removePerceptCooperativeTransport";
     private static final String ITEM_IN_NEIGHBORHOOD="itemInNeighborhood";
     private static final String DROP_ITEM_NEST="dropItemNest";
-    private Object lock;
 
     @Override
     public void init(String[] args) {
-        model = new ForagingModel();
-        lock=new Object();
 
-        if ((args.length == 1) && args[0].equals("gui")) {
+        if ((args.length == 2) && args[0].equals("gui")) {
+        	value=Integer.parseInt(args[1]);
+        	
+        	switch(value){
+        		case 1:model=new ForagingModel1();break;
+        		case 2:model=new ForagingModel2();break;
+        		case 3:model=new ForagingModel3();break;
+        		case 4:model=new ForagingModel4();break;
+        		case 5:model=new ForagingModel5();break;
+        		case 6:model=new ForagingModel6();break;
+        		default:break;
+        	}
+        	
             this.model.setView(new ForagingView(this.model));
         }
         
@@ -41,14 +51,38 @@ public class ForagingEnvironment extends Environment {
 
     @Override
     public boolean executeAction(String agName, Structure action) {
-    	//synchronized(lock){
     	String functor=action.getFunctor();
-        int agent=Integer.parseInt(agName.substring(3))-1;
+        int agent=Integer.parseInt(agName.substring(5))-1;
         
         if(functor.equals(ForagingEnvironment.MOVE_TO_NEXT_POSITION)) {
-        	Location position=model.getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
-            		Double.parseDouble(action.getTerm(1).toString()),
-            		action.getTerm(2).equals(new LiteralImpl("food")),agent);
+        	Location position=null;
+        	
+        	if(value<=4){
+        		switch(value){
+        			case 1:position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+        					Double.parseDouble(action.getTerm(1).toString()),
+        					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
+        			case 2:position=((ForagingModel2)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+        					Double.parseDouble(action.getTerm(1).toString()),
+        					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
+        			case 3:position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+        					Double.parseDouble(action.getTerm(1).toString()),
+        					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
+        			case 4:position=((ForagingModel4)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+        					Double.parseDouble(action.getTerm(1).toString()),
+        					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
+        			default:break;
+        		}
+        		
+        	}else{
+        		if(value==5){
+        			position=((ForagingModel5)model).
+        					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
+        		}else{
+        			position=((ForagingModel6)model).
+        					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
+        		}
+        	}
             
             model.moveTo(agent,position);
             
@@ -73,7 +107,24 @@ public class ForagingEnvironment extends Environment {
             
             return true;
         }else if(functor.equals(ForagingEnvironment.RELEASE_PHEROMONE)){
-        	model.updatePheromone(agent,action.getTerm(0).equals(new LiteralImpl("food")));
+        	
+        	if(value==3||value==4){
+        		if(value==3){
+        			((ForagingModel3)model).updatePheromone(agent);
+        		}else{
+        			((ForagingModel4)model).updatePheromone(agent);
+        		}
+        	}else{
+        		
+        		if(value==1||value==2){
+        			 ((ForagingModel1)model).updatePheromone(
+         					agent,action.getTerm(0).equals(new LiteralImpl("food")));
+        		}else{
+        			((ForagingModel5)model).updatePheromone(
+        					agent,action.getTerm(0).equals(new LiteralImpl("food")));
+        		}
+        	}
+        	
         	return true;
         }else if(functor.equals(PICK_UP_FOOD)){
         	Pair<Integer,Item> result=model.pickUpFood(agent,Double.parseDouble(action.getTerm(0).toString()));
@@ -83,26 +134,27 @@ public class ForagingEnvironment extends Environment {
         	}else if(result.getFirst()==1 && result.getSecond().getAgents().size()>1){
         		List<Integer> agents=result.getSecond().getAgents();
         		
-        		//System.out.println("Formiche che collaborano: ");
+        		System.out.println("Cooperative transport: ");
         		for(int tmp:agents){
-        			//System.out.print("ant"+(tmp+1)+" ");
+        			System.out.print("agent"+(tmp+1)+" ");
         			String list="[";
         			for(int i=0;i<agents.size();i++){
         				if(agents.get(i)!=tmp){
-        					list+="ant"+(agents.get(i)+1)+",";
+        					list+="agent"+(agents.get(i)+1)+",";
         				}
         				
         				if(agent!=tmp){
-        					removePercept("ant"+(tmp+1),Literal.parseLiteral("heavy"));
+        					removePercept("agent"+(tmp+1),Literal.parseLiteral("heavy"));
         				}
         			}
         			
         			model.setCooperative(tmp);
         			list=list.substring(0,list.length()-1)+"]";
         			
-        			addPercept("ant"+(tmp+1),Literal.parseLiteral("ready("+(agents.size()-1)+","+list+")"));
+        			addPercept("agent"+(tmp+1),Literal.parseLiteral("ready("+(agents.size()-1)+","+list+")"));
         		}
         		
+        		System.out.println("");
         		return false;
         	}
         	
@@ -116,21 +168,43 @@ public class ForagingEnvironment extends Environment {
         }else if(functor.equals(GET_NEXT_POSITION)){
         	if(!model.antInNest(agent)){
         	
-        		Location position=model.getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
-        				Double.parseDouble(action.getTerm(1).toString()),
-        				action.getTerm(2).equals(new LiteralImpl("food")),agent);
-        		
+        		Location position=null;
+            	
+            	if(value<=4){
+            		switch(value){
+            			case 1:position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+            					Double.parseDouble(action.getTerm(1).toString()),
+            					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
+            			case 2:position=((ForagingModel2)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+            					Double.parseDouble(action.getTerm(1).toString()),
+            					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
+            			case 3:position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+            					Double.parseDouble(action.getTerm(1).toString()),
+            					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
+            			case 4:position=((ForagingModel4)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+            					Double.parseDouble(action.getTerm(1).toString()),
+            					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
+            			default:break;
+            		}
+            		
+            	}else{
+            		if(value==5){
+            			position=((ForagingModel5)model).
+            					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
+            		}else{
+            			position=((ForagingModel6)model).
+            					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
+            		}
+            	}
+            	
         		removePerceptsByUnif(agName,Literal.parseLiteral("next_position(_,_)"));
-        	//	System.out.println("["+agName+"] Aggiungo la posizione: "+position.x+" "+position.y);
         		try{
             	addPercept(agName,Literal.parseLiteral("next_position("+position.x+","+position.y+")"));
-        	//	System.out.println("["+agName+"] posizione aggiunta");		
         		}catch(Exception e){
         			e.printStackTrace();
         		}
             }
         	
-        	//System.out.println("["+agName+"] return true");
         	return true;
         }else if(functor.equals(MOVE_TO)){
         	Location position=new Location(Integer.parseInt(action.getTerm(0).toString()),
@@ -188,19 +262,16 @@ public class ForagingEnvironment extends Environment {
         	return model.dropItemNest(agent);
         }
     	
-    	
-       // }
-        
         return false;
     }
 
     private void initializePercepts() {
         clearAllPercepts();
 
-        for(int i=0;i<ForagingModel.NUMBER_AGENTS;i++){
+        for(int i=0;i<ForagingModel1.NUMBER_AGENTS;i++){
         	final Location agent = this.model.getAgPos(i);
-        	addPercept("ant"+(i+1),Literal.parseLiteral("position("+agent.x+","+agent.y+")"));
-        	addPercept("ant"+(i+1),Literal.parseLiteral("nest"));
+        	addPercept("agent"+(i+1),Literal.parseLiteral("position("+agent.x+","+agent.y+")"));
+        	addPercept("agent"+(i+1),Literal.parseLiteral("nest"));
         }
     }
 }

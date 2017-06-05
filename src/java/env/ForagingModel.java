@@ -1,8 +1,11 @@
 package env;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 
 import jason.environment.grid.Area;
@@ -10,42 +13,46 @@ import jason.environment.grid.GridWorldModel;
 import jason.environment.grid.Location;
 import jason.util.Pair;
 
-public class ForagingModel extends GridWorldModel{
+public abstract class ForagingModel extends GridWorldModel{
 
-	private final static int SIZE=50;
-	private final static int NUMBER_FOOD=15;
+	protected final static int SIZE=50;
+	protected final static int NUMBER_FOOD=15;
 	public final static int NUMBER_AGENTS=100;
 	public final static int FOOD=16;
 	public final static int NEST=32;
+	
 	private int itemNest=0;
 	private static Area NEST_AREA;
 	private static Area FOOD_AREA;
 	private static Area wall_area,wall_area2,wall_area3,wall_area4,wall_area5,wall_area6,wall_area7;
-	
-	private int pheromone;
-	private double rho;
-	private double [][] tauToFood,tauToNest,etaToFood,etaToNest;
+	protected ReentrantLock lockAgent,lock,lockFood,lockFoodNest;
+	protected int pheromone;
+	protected double rho;
 	private List<Boolean> carryingFood,cooperative;
-	private List<Item> item4824,item4825,item4924,item4925;
+	protected List<Item> item4824,item4825,item4924,item4925;
 	private List<Location> itemInNest;
-	private Object lock,lockFood,lockFoodNest;
 	
-	protected ForagingModel() {
+	public ForagingModel(){
 		super(SIZE,SIZE,NUMBER_AGENTS);
 		
-		lock=new Object();
-		lockFood=new Object();
-		lockFoodNest=new Object();
+		lock=new ReentrantLock();
+		lockFood=new ReentrantLock();
+		lockFoodNest=new ReentrantLock();
+		lockAgent=new ReentrantLock();
 		
+		initialize();
 		initializeACO();
 		setAntPosition();
 		setEnvironment();
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");    
+		System.out.println("Start time: "+sdf.format(new Date(System.currentTimeMillis())));
 		
 		new Thread(()->{
 			int i=0;
 			while(true){
 				try {
-					Thread.sleep(20000);
+					Thread.sleep(15000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -55,78 +62,60 @@ public class ForagingModel extends GridWorldModel{
 				if(i==3){
 					i=0;
 					refillArea();
-					System.out.println("Refill");
+					//System.out.println("Refill");
 				}
 				
 				evaporatePheromone();
+				System.out.println(sdf.format(new Date(System.currentTimeMillis())));
 			}
 		}).start();
 	}
-
 	
 	public boolean antInNest(int agent){
-		boolean tmp;
+		//boolean tmp;
 		
+		return getAgentPosition(agent).isInArea(NEST_AREA);
 		//synchronized(lockAgent){
-			tmp=getAgPos(agent).isInArea(NEST_AREA);
+		//	tmp=getAgPos(agent).isInArea(NEST_AREA);
 		//}
-		return tmp;
+		//return tmp;
+		
 	}
 	
 	public boolean antInFoodArea(int agent){
 		
-		boolean tmp;
+		//boolean tmp;
 		
+		return getAgentPosition(agent).isInArea(FOOD_AREA);
 		//synchronized(lockAgent){
-			tmp=getAgPos(agent).isInArea(FOOD_AREA);
+			//tmp=getAgPos(agent).isInArea(FOOD_AREA);
 		//}
-		return tmp;
+		//return tmp;
 	}
 	
 	public boolean carryingFood(int agent){
 		boolean flag;
-		synchronized(lockFood){
+		/*synchronized(*/lockFood.lock();//){
 			flag=carryingFood.get(agent);
-		}
+			lockFood.unlock();
+		//}
 		return flag;
 	}
 	
 	public boolean getCooperative(int agent){
 		boolean flag;
-		synchronized(lockFood){
+		/*synchronized(*/lockFood.lock();//){
 			flag=cooperative.get(agent);
-		}
+			lockFood.unlock();
+		//}
 		return flag;
 	}
 	
 	public void setCooperative(int agent){
-		synchronized(lockFood){
+		/*synchronized(*/lockFood.lock();//){
 			cooperative.set(agent,true);
-		}
-	}
-	
-	public void updatePheromone(int agent,boolean searchFood){
-		synchronized(lock){
-			Location position;
-			
-			//synchronized(lockAgent){
-				position=getAgPos(agent);
-			//}
-			
-			if(searchFood){
-				if(tauToNest[position.x][position.y]+pheromone<50000){
-					tauToNest[position.x][position.y]+=pheromone;
-				}else{
-					tauToNest[position.x][position.y]=50000;
-				}
-			}else{
-				if(tauToFood[position.x][position.y]+pheromone<50000){
-					tauToFood[position.x][position.y]+=pheromone;
-				}else{
-					tauToFood[position.x][position.y]=5000;
-				}
-			}
-		}
+			lockFood.unlock();
+		//}
 	}
 	
 	public Pair<Integer,Item> pickUpFood(int agent,double weight){
@@ -138,11 +127,12 @@ public class ForagingModel extends GridWorldModel{
 		int index=-1;
 		Item item=null;
 		
-		synchronized(lockFood){
+		/*synchronized(*/lockFood.lock();//){
 			Location position;
 			
+			position=getAgentPosition(agent);
 			//synchronized(lockAgent){
-				position=getAgPos(agent);
+				//position=getAgPos(agent);
 			//}
 			
 			if(position.x==48 && position.y==24){
@@ -205,24 +195,27 @@ public class ForagingModel extends GridWorldModel{
 			
 			carryingFood.set(agent,result==1?true:false);
 			
-		}
+			lockFood.unlock();
+		//}
 		
 		return new Pair<>(result,item);
 	}
 	
 	public void releasePheromoneItem(int ant){
-		synchronized(lockFood){
+		/*synchronized(*/lockFood.lock();//){
 			
 			Location position;
 			
+			position=getAgentPosition(ant);
 			//synchronized(lockAgent){
-				position=getAgPos(ant);
+				//position=getAgPos(ant);
 			//}
 			
 			if(position.x==48 && position.y==24){
 				for(int i=0;i<item4824.size();i++){
 					if(item4824.get(i).getAgents().contains(ant)){
 						item4824.get(i).addPheromone();
+						lockFood.unlock();
 						return;
 					}
 				}
@@ -230,6 +223,7 @@ public class ForagingModel extends GridWorldModel{
 				for(int i=0;i<item4825.size();i++){
 					if(item4825.get(i).getAgents().contains(ant)){
 						item4825.get(i).addPheromone();
+						lockFood.unlock();
 						return;
 					}
 				}
@@ -237,6 +231,7 @@ public class ForagingModel extends GridWorldModel{
 				for(int i=0;i<item4924.size();i++){
 					if(item4924.get(i).getAgents().contains(ant)){
 						item4924.get(i).addPheromone();
+						lockFood.unlock();
 						return;
 					}
 				}
@@ -244,15 +239,17 @@ public class ForagingModel extends GridWorldModel{
 				for(int i=0;i<item4925.size();i++){
 					if(item4925.get(i).getAgents().contains(ant)){
 						item4925.get(i).addPheromone();
+						lockFood.unlock();
 						return;
 					}
 				}
 			}
-		}
+			lockFood.unlock();
+		//}
 	}
 	
 	public boolean walkIntoNest(int agent){
-		synchronized(lockFoodNest){
+		/*synchronized(*/lockFoodNest.lock();//){
 			Random r=new Random();
 			Location location= getAgPos(agent);
 			
@@ -264,17 +261,21 @@ public class ForagingModel extends GridWorldModel{
 				y=location.y+(r.nextInt(3)-1);	
 			}
 			
-			setAgPos(agent, x, y);
-			
-			return itemInNest.contains(new Location(x,y));
-		}
+			Location tmp=new Location(x,y);
+			setAgentPosition(agent,tmp);
+			//setAgPos(agent, x, y);
+			boolean flag=itemInNest.contains(tmp);
+			lockFoodNest.unlock();
+			return flag;
+		//}
 	}
 	
 	public int itemInNeighborhood(int agent){
-		synchronized(lockFoodNest){
+		/*synchronized(*/lockFoodNest.lock();//){
 			int tmp=0;
 			
-			Location location=getAgPos(agent);
+			Location location=getAgentPosition(agent);
+			//Location location=getAgPos(agent);
 			
 			if(itemInNest.contains(new Location(location.x-1,location.y-1))){
 				tmp++;
@@ -308,43 +309,58 @@ public class ForagingModel extends GridWorldModel{
 				tmp++;
 			}
 			
+			lockFoodNest.unlock();
 			return tmp;
-		}
+		//}
 	}
 	
 	public void pickItemNest(int agent){
-		synchronized(lockFoodNest){
-			Location location=getAgPos(agent);
+		/*synchronized(*/lockFoodNest.lock();//){
+			Location location=getAgentPosition(agent);
+			//Location location=getAgPos(agent);
 			itemInNest.remove(location);
 			remove(FOOD,location);
 			
-			synchronized(lockFood){
+			/*synchronized(*/lockFood.lock();//){
 				carryingFood.set(agent,true);
-			}
-		}
+				lockFood.unlock();
+			//}
+			lockFoodNest.unlock();
+		//}
 	}
 	
 	public boolean dropItemNest(int agent){
-		synchronized(lockFoodNest){
-			Location location=getAgPos(agent);
+		/*synchronized(*/lockFoodNest.lock();//){
+			//Location location=getAgPos(agent);
+			Location location=getAgentPosition(agent);
 			
 			if(itemInNest.contains(location)){
+				lockFoodNest.unlock();
 				return false;
 			}
 			
 			add(FOOD,location);
 			itemInNest.add(location);
 			
-			synchronized(lockFood){
+			/*synchronized(*/lockFood.lock();//){
 				carryingFood.set(agent,false);
-			}
+				lockFood.unlock();
+			//}
 			
+			lockFoodNest.unlock();
 			return true;
-		}
+		//}
+	}
+	
+	public void moveTo(int ant,Location location){
+		setAgentPosition(ant,location);
+		//synchronized(lockAgent){
+			//setAgPos(ant,location);
+		//}
 	}
 	
 	public void moveIntoNest(int agent){
-		synchronized(lockFoodNest){
+		/*synchronized(*/lockFoodNest.lock();//){
 			Random r=new Random();
 			Location location=new Location(r.nextInt(50),r.nextInt(18));
 			
@@ -352,17 +368,20 @@ public class ForagingModel extends GridWorldModel{
 				location=new Location(r.nextInt(50),r.nextInt(18));
 			}
 			
-			setAgPos(agent, location);
-		}
+			setAgentPosition(agent, location);
+			lockFoodNest.unlock();
+			//setAgPos(agent, location);
+		//}
 	}
 	
 	public void dropFood(int agent){
-		synchronized(lockFood){
+		/*synchronized(*/lockFood.lock();//){
 			carryingFood.set(agent,false);
 			cooperative.set(agent,false);
-		}
+			lockFood.unlock();
+		//}
 		
-		synchronized(lockFoodNest){
+		/*synchronized(*/lockFoodNest.lock();//){
 			
 			if(itemNest<100){
 				itemNest++;
@@ -380,26 +399,21 @@ public class ForagingModel extends GridWorldModel{
 				add(FOOD,locationItem);
 				itemInNest.add(locationItem);
 			}
-		}
+			lockFoodNest.unlock();
+		//}
 	}
 	
-	public Location getNextPosition(double alpha,double beta,boolean searchFood,int ant){
-		Location position;
+	private void setAntPosition(){
+		Random r=new Random();
 		
-		//synchronized(lockAgent){
-			position=getAgPos(ant);
-		//}
-		Location location=montecarlo(calculateGrade(position.x,position.y,alpha,beta,searchFood));
-		return location;
+		IntStream.range(0,NUMBER_AGENTS).forEach(i->{
+			setAgentPosition(i,new Location(r.nextInt(2),r.nextInt(2)+24));
+			carryingFood.add(false);
+			cooperative.add(false);
+		});
 	}
 	
-	public void moveTo(int ant,Location location){
-		//synchronized(lockAgent){
-			setAgPos(ant,location);
-		//}
-	}
-	
-	private int montecarloItem(List<Item> list){
+	protected int montecarloItem(List<Item> list){
 		double sum=0;
 		
 		for(int i=0;i<list.size();i++){
@@ -421,59 +435,7 @@ public class ForagingModel extends GridWorldModel{
 		
 	}
 	
-	private List<Pair<Double,Location>> calculateGrade(int x, int y,double alpha,double beta,boolean searchFood){
-		ArrayList<Pair<Double,Location>> val=new ArrayList<>();
-		
-		double eta[][]=searchFood?etaToFood:etaToNest;
-		double tau[][];
-		
-		synchronized(lock){
-			tau=searchFood?tauToFood:tauToNest;
-		}
-		
-		Location location;
-		
-		if(!searchFood){
-			if((x-1)>=0){
-				location=new Location(x-1,y);
-				val.add(evaluatePosition(location, eta, tau, alpha, beta));
-			}
-		}
-		
-		if((y-1)>=0){
-			location=new Location(x,y-1);
-			val.add(evaluatePosition(location, eta, tau, alpha, beta));
-			
-		}
-		
-		if((y+1)<SIZE){
-			location=new Location(x,y+1);
-			val.add(evaluatePosition(location, eta, tau, alpha, beta));
-		}
-		
-		
-		if(searchFood){
-			if((x+1)<SIZE){
-				location=new Location(x+1,y);
-				val.add(evaluatePosition(location, eta, tau, alpha,beta));
-			}
-		}
-		
-		return val;
-	}
-	
-	private Pair<Double,Location> evaluatePosition(Location location,double [][]eta,double [][]tau,double alpha,double beta){
-		
-		if(antInWallArea(location)){
-			return new Pair<>(0.0,location);
-		}
-		
-		return new Pair<>(Math.pow(eta[location.x][location.y],alpha)*
-				Math.pow(tau[location.x][location.y],beta),location);
-		
-	}
-	
-	private Location montecarlo(List<Pair<Double,Location>> val){
+	protected Location montecarlo(List<Pair<Double,Location>> val){
 		double sum=0;
 		
 		for(int i=0;i<val.size();i++){
@@ -504,108 +466,28 @@ public class ForagingModel extends GridWorldModel{
 		return val.get(0).getSecond();
 	}
 	
-	private void evaporatePheromone(){
-		synchronized(lock){
-			for(int column=0;column<SIZE;column++){
-				for(int row=0;row<SIZE;row++){
-					tauToFood[column][row]*=rho;
-					tauToNest[column][row]*=rho;
-				}
-			}
-		}
-		
-		synchronized(lockFood){
-			IntStream.range(0,item4824.size()).forEach(i->item4824.get(i).evaporatePheromone());
-			IntStream.range(0,item4825.size()).forEach(i->item4825.get(i).evaporatePheromone());
-			IntStream.range(0,item4924.size()).forEach(i->item4924.get(i).evaporatePheromone());
-			IntStream.range(0,item4925.size()).forEach(i->item4925.get(i).evaporatePheromone());
-		}
-	}
-	
-	private void initializeACO(){
+	private void initialize(){
 		rho=0.7;
 		carryingFood=new ArrayList<>();
 		cooperative=new ArrayList<>();
-		double[][] distanceToFood=new double[SIZE][SIZE];
-		double[][] distanceToNest=new double[SIZE][SIZE];
-		tauToFood=new double[SIZE][SIZE];
-		tauToNest=new double[SIZE][SIZE];
-		etaToFood=new double[SIZE][SIZE];
-		etaToNest=new double[SIZE][SIZE];
 		item4824=new ArrayList<>();
 		item4825=new ArrayList<>();
 		item4924=new ArrayList<>();
 		item4925=new ArrayList<>();
 		itemInNest=new ArrayList<>();
-		
-		for(int j=48;j<=49;j++){
-			for(int i=24;i<=25;i++){
-				
-				for(int column=0;column<SIZE;column++){
-					for(int row=0;row<SIZE;row++){
-						distanceToFood[column][row]=Math.abs(j-column)+Math.abs(i-row);
-						distanceToNest[column][row]=Math.abs((j-48)-column)+Math.abs(i-row);
-					}
-				}
-				
-				double maxDistanceToFood=0,maxDistanceToNest=0;
-				
-				for (int k = 0; k < SIZE; k++)
-	            {
-	                for (int l = 0; l < SIZE; l++)
-	                {
-	                    if (maxDistanceToFood < distanceToFood[k][l]){
-	                    	maxDistanceToFood = distanceToFood[k][l];
-	                    }
-	                    
-	                    if (maxDistanceToNest < distanceToNest[k][l]){
-	                    	maxDistanceToNest = distanceToNest[k][l];
-	                    }
-	                }
-
-	            }
-				
-	            
-	            for (int column = 0; column < SIZE; column++)
-	            {
-	                for (int row = 0; row < SIZE; row++)
-	                {
-	                	tauToFood[column][row]+=25;
-	                	tauToNest[column][row]+=25;
-	                	etaToFood[column][row]+= maxDistanceToFood - distanceToFood[column][row];
-	                	etaToNest[column][row]+= maxDistanceToNest - distanceToNest[column][row];
-	                }
-	            }
-			}
-		}
-		
-		etaToFood[48][24]+=NUMBER_FOOD*10;
-        etaToFood[48][25]+=NUMBER_FOOD*10;
-        etaToFood[49][24]+=NUMBER_FOOD*10;
-        etaToFood[49][25]+=NUMBER_FOOD*10;
+        pheromone=10;
         
-        pheromone=100;
-        
-        Random r=new Random();
-        IntStream.range(item4824.size(),14).forEach(i->item4824.add(new Item(/*r.nextDouble()*25*/0)));
-		IntStream.range(item4825.size(),14).forEach(i->item4825.add(new Item(/*r.nextDouble()*25*/0)));
-		IntStream.range(item4924.size(),14).forEach(i->item4924.add(new Item(/*r.nextDouble()*25*/0)));
-		IntStream.range(item4925.size(),14).forEach(i->item4925.add(new Item(/*r.nextDouble()*25*/0)));
+        IntStream.range(item4824.size(),NUMBER_FOOD-1).forEach(i->item4824.add(new Item(0)));
+		IntStream.range(item4825.size(),NUMBER_FOOD-1).forEach(i->item4825.add(new Item(0)));
+		IntStream.range(item4924.size(),NUMBER_FOOD-1).forEach(i->item4924.add(new Item(0)));
+		IntStream.range(item4925.size(),NUMBER_FOOD-1).forEach(i->item4925.add(new Item(0)));
 		
-		item4824.add(new Item(50));
-		item4825.add(new Item(50));
-		item4924.add(new Item(50));
-		item4925.add(new Item(50));
-	}
-	
-	private void setAntPosition(){
 		Random r=new Random();
 		
-		IntStream.range(0,NUMBER_AGENTS).forEach(i->{
-			setAgPos(i,r.nextInt(2),r.nextInt(2)+24);
-			carryingFood.add(false);
-			cooperative.add(false);
-		});
+		/*item4824.add(new Item(r.nextInt(41)+30));
+		item4825.add(new Item(r.nextInt(41)+30));
+		item4924.add(new Item(r.nextInt(41)+30));
+		item4925.add(new Item(r.nextInt(41)+30));*/
 	}
 	
 	private void setEnvironment(){
@@ -637,7 +519,7 @@ public class ForagingModel extends GridWorldModel{
         addWall(wall_area7.tl.x,wall_area7.tl.y,wall_area7.br.x,wall_area7.br.y);
 	}
 	
-	private boolean antInWallArea(Location location){
+	protected boolean antInWallArea(Location location){
 		return location.isInArea(wall_area)||location.isInArea(wall_area2)
 				||location.isInArea(wall_area3)||location.isInArea(wall_area4)
 				||location.isInArea(wall_area5)||location.isInArea(wall_area6)
@@ -645,29 +527,47 @@ public class ForagingModel extends GridWorldModel{
 	}
 	
 	private void refillArea(){
-		synchronized(lockFood){
+		/*synchronized(*/lockFood.lock();//){
+			IntStream.range(item4824.size(),NUMBER_FOOD-1).forEach(i->item4824.add(new Item(0)));
+			IntStream.range(item4825.size(),NUMBER_FOOD-1).forEach(i->item4825.add(new Item(0)));
+			IntStream.range(item4924.size(),NUMBER_FOOD-1).forEach(i->item4924.add(new Item(0)));
+			IntStream.range(item4925.size(),NUMBER_FOOD-1).forEach(i->item4925.add(new Item(0)));
+			
 			Random r=new Random();
-			IntStream.range(item4824.size(),14).forEach(i->item4824.add(new Item(/*r.nextDouble()*25*/0)));
-			IntStream.range(item4825.size(),14).forEach(i->item4825.add(new Item(/*r.nextDouble()*25*/0)));
-			IntStream.range(item4924.size(),14).forEach(i->item4924.add(new Item(/*r.nextDouble()*25*/0)));
-			IntStream.range(item4925.size(),14).forEach(i->item4925.add(new Item(/*r.nextDouble()*25*/0)));
-			
-			if(item4824.size()<15){
-				item4824.add(new Item(50));
+		/*	
+			if(item4824.size()<NUMBER_FOOD){
+				item4824.add(new Item(r.nextInt(41)+30));
 			}
 			
-			if(item4825.size()<15){
-				item4825.add(new Item(50));
+			if(item4825.size()<NUMBER_FOOD){
+				item4825.add(new Item(r.nextInt(41)+30));
 			}
 			
-			if(item4924.size()<15){
-				item4924.add(new Item(50));
+			if(item4924.size()<NUMBER_FOOD){
+				item4924.add(new Item(r.nextInt(41)+30));
 			}
 			
-			if(item4925.size()<15){
-				item4925.add(new Item(50));
-			}
-			
-		}
+			if(item4925.size()<NUMBER_FOOD){
+				item4925.add(new Item(r.nextInt(41)+30));
+			}*/
+			lockFood.unlock();
+		//}
 	}
+	
+	protected void setAgentPosition(int agent,Location location){
+		//lockAgent.lock();
+		setAgPos(agent,location);
+		//lockAgent.unlock();
+	}
+	
+	protected Location getAgentPosition(int agent){
+		//lockAgent.lock();
+		Location tmp=getAgPos(agent);
+		//lockAgent.unlock();
+		
+		return tmp;
+	}
+	
+	protected abstract void initializeACO();
+	protected abstract void evaporatePheromone();
 }

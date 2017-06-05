@@ -2,10 +2,16 @@ MAS foraging {
 
 	infrastructure: Centralised
 
-	environment: env.ForagingEnvironment(gui)
+
+	// con 1 e 2 passo l'agente 1. con 1 prendo ForagingModel1. con 2 prendo ForagingModel2
+	// con 3 e 4 passo l'agente 2. con 3 prendo ForagingModel3. con 4 prendo ForagingModel4
+	// con 5 e 6 passo l'agente 3. con 5 prendo ForagingModel5. con 6 prendo ForagingModel6
+	environment: env.ForagingEnvironment(gui,5)
 
 	agents:
-		ant #100;
+		agent agent3 #100;
+		//agent agent2 #100;
+		//agent agent1 #100;
 
 	aslSourcePath:
 		"src/asl";
