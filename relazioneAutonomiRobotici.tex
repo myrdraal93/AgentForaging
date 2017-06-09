@@ -1,0 +1,204 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%12pt: grandezza carattere
+%a4paper: formato a4
+%openright: apre i capitoli a destra
+%twoside: serve per fare un
+%   documento fronteretro
+%report: stile tesi (oppure book)
+\documentclass[12pt,a4paper,openright,twoside]{report}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%libreria per scrivere in italiano
+\usepackage[italian]{babel}
+\usepackage{lscape}
+\usepackage{rotating}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%libreria per accettare i caratteri
+%   digitati da tastiera come Ã¨ Ã 
+%   si puÃ² usare anche
+%   \usepackage[T1]{fontenc}
+%   perÃ² con questa libreria
+%   il tempo di compilazione
+%   aumenta
+\usepackage[utf8]{inputenc}
+%\usepackage[latin1]{inputenc}
+\usepackage[T1]{fontenc}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%libreria per impostare il documento
+\usepackage{fancyhdr}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%libreria per avere l'indentazione
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%   all'inizio dei capitoli, ...
+\usepackage{indentfirst}
+%
+%%%%%%%%%libreria per mostrare le etichette
+%\usepackage{showkeys}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%libreria per inserire grafici
+\usepackage{graphicx}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%libreria per utilizzare font
+%   particolari ad esempio
+%   \textsc{}
+
+\usepackage{newlfont}
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%librerie matematiche
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{amsthm}
+%
+\oddsidemargin=30pt \evensidemargin=20pt%impostano i margini
+\hyphenation{sil-la-ba-zio-ne pa-ren-te-si}%serve per la sillabazione: tra parentesi 
+%vanno inserite come nell'esempio le parole 
+%					   %che latex non riesce a tagliare nel modo giusto andando a capo.
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%comandi per l'impostazione
+%   della pagina, vedi il manuale
+%   della libreria fancyhdr
+%   per ulteriori delucidazioni
+\pagestyle{fancy}\addtolength{\headwidth}{20pt}
+\renewcommand{\chaptermark}[1]{\markboth{\thechapter.\ #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection \ #1}{}}
+\rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
+\cfoot{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\linespread{1.3}                        %comando per impostare l'interlinea
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%definisce nuovi comandi
+%
+\begin{document}
+
+	\pagenumbering{roman}                   %serve per mettere i numeri romani
+	\chapter*{Introduzione}                 %crea l'introduzione (un capitolo
+	%   non numerato)
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%imposta l'intestazione di pagina
+	\rhead[\fancyplain{}{\bfseries
+		INTRODUZIONE}]{\fancyplain{}{\bfseries\thepage}}
+	\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries
+			INTRODUZIONE}}
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%aggiunge la voce Introduzione
+	%   nell'indice
+	\addcontentsline{toc}{chapter}{Introduzione}
+
+La stigmergy è una forma indiretta di coordinazione tra agenti che sfrutta l'ambiente. In particolare, un agente modifica l'ambiente e, un altro agente, reagisce al cambiamento [inserire riferimento roli]. Le formiche sono una tra le specie animali che sfruttano questo tipo di coordinazione.\\
+Le formiche che si occupano della ricerca del cibo, una volta individuato, durante il ritorno al formicaio, rilasciano feromone nell'ambiente; in modo da comunicare il percorso da effettuare. Inoltre, all'interno del formicaio, effettuano corpse clustering nelle zone in cui sono custodite le larve; in modo da proteggerle.\\
+Ispirandosi al comportamento delle formiche, si è voluto simulare, tramite MAS, il fenomeno del foraging e del corpse clustering; adottando come meccanismo di coordinazione indiretta la stigmergy. Per quanto concerne il foraging, sono stati realizzate diverse metodologie. Inoltre, è stato realizzato una forma di trasporto cooperativo in caso di oggetti troppo pesanti per il singolo agente.\\
+Lo scopo di questa simulazione è quello di suddividere il lavoro degli agenti tra il foraging e il corpse clustering. Verranno inoltre confrontate le diverse metodologie realizzate per il foraging. Una volta individuata le metodologia migliore, verrà analizzato il comportamento globale del sistema al variare di alcuni parametri.\\
+La tecnologia scelta per questa simulazione è il linguaggio ad agenti Jason.
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%non numera l'ultima pagina sinistra
+	\clearpage{\pagestyle{empty}\cleardoublepage}
+	\tableofcontents                        %crea l'indice
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%imposta l'intestazione di pagina
+	\rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
+	\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries
+			INDICE}}
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%non numera l'ultima pagina sinistra
+	\clearpage{\pagestyle{empty}\cleardoublepage}
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%non numera l'ultima pagina sinistra
+	\clearpage{\pagestyle{empty}\cleardoublepage}
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%non numera l'ultima pagina sinistra
+	\clearpage{\pagestyle{empty}\cleardoublepage}
+	\chapter{Modello}                %crea il capitolo
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%imposta l'intestazione di pagina
+	\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
+	\pagenumbering{arabic}                  %mette i numeri arabi
+
+Il modello realizzato è una semplificazione della realtà e si basa su alcune assunzioni. Inoltre, si ispira al comportamento delle formiche, ma non replica completamente il loro reale comportamento; poiché alcuni comportamenti restano ancora sconosciuti alla comunità scientifica o variano a seconda della specie.
+
+\section{Assunzioni}
+
+Come detto nell'introduzione del capitolo, per la realizzazione di questo modello, sono state fatte alcune assunzioni:
+
+\begin{itemize}
+	\item Il sistema è testato su un'arena con una particolare conformazione. Non è quindi possibile garantire la replicazione dei risultati in arene con conformazione differente da quella presente nella figura successiva.
+	\item Alcuni modelli per il foraging rilasciano due feromoni differenti. Si assume che questi due feromoni possano coesistere nell'ambiente.
+	\item A un intervallo di tempo predefinito gli oggetti presenti nell'arena verranno aggiunti nuovamente, senza  superare una certa soglia.
+	\item Il numero di oggetti utilizzati per il clustering non può superare una certa soglia.
+\end{itemize}
+
+\section{Arena}
+
+\begin{center}  
+	\includegraphics[width=1\linewidth]{"Desktop/Sistemi Robotici/Arena"}
+	\\Figura 1.1: Arena
+\end{center}
+
+L'arena è formata da una griglia 100x100 non toroidale, suddivisa in due parti.\\
+L'area all'interno dei bordi grigi rappresenta l'ambiente esplorabile dagli agenti per il recupero degli oggetti. Come visibile, al centro è presente un blocco asimmetrico che rappresenta un ostacolo. L'area in rosso rappresenta il "nido" degli agenti, mentre l'area in giallo la zona in cui sono presenti gli oggetti.\\
+La parte superiore dell'arena rappresenta l'interno del "nido" in cui verranno depositati gli oggetti recuperati e che verranno aggregati in un secondo momento. 
+
+\section{Foraging}
+
+Per replicare il fenomeno presente in natura del foraging, sono state sviluppate diverse metodologie. Per poterle confrontare è necessario fissare alcuni parametri per permettere un confronto.\\
+Anche se si contrappone con un'assunzione fatta nella sezione precedente, poiché, al momento siamo interessati solo al fenomeno del foraging, si assume che gli oggetti presenti nell'ambiente siano inesauribili e che non sia necessario un trasporto cooperativo.\\
+Di seguito sono presenti i parametri fissati per il confronto tra le diverse metodologie:\\
+
+\begin{tabular}{p{5cm}|p{5cm}} 
+	 \textbf{ Parametri} & \textbf{ Valori} \\ \hline
+	 N. Agenti & 100 \\
+	 Feromone min. & 0 \\
+	 Feromone max. & 10000 \\
+	 Feromone rilasciato & 10\\
+	 \% Evaporazione & 0.3 \% \\
+	 Tempo evaporazione & 10 s
+\end{tabular}
+\\
+\subsection{Metodologia 1}
+
+La prima metodologia è stata sviluppata adottando l'algoritmo Ant System; il primo algoritmo ACO.
+Tale algoritmo, per determinare la posizione successiva nella quale l'agente deve spostarsi, prende in considerazione due valori:
+
+\begin{itemize}
+	\item L'aspettativa a priori $\eta$; indica l'attrattività a priori della mossa.
+	\item Il livello di feromone $\tau$; indica l'utilità a posteriori della mossa.
+\end{itemize}
+
+La probabilità $p^k_{\iota\psi}$ per un agente \textit{k} di muoversi dalla posizione $\iota$ alla posizione $\psi$ è data da: $p^k_{\iota\psi}= \dfrac{\tau^\alpha_{\iota\psi}\eta^\beta_{\iota\psi}}{\Sigma_k\tau^\alpha_{\iota k}\eta^\beta_{\iota k}}$. \\
+
+L'aspettativa a priori è stata calcolata tramite la seguente euristica. \\
+
+\begin{verbatim}
+for(int column=0;column<100;column++){
+    for(int row=0;row<100;row++){
+        eta[column][row]= maxDistance - distance[column][row];
+    }
+}
+\end{verbatim}
+
+L'euristica è stata calcolata sia per la zona in cui sono presenti gli oggetti che per il nido. Questo perchè l'agente è stato modellato in modo che non ricordi la strada percorsa.\\
+Come visibile, l'attrattività per una coordinata è data dalla differenza tra la distanza dal punto di interesse (in base alla coordinata in cui ci si trova) e quella massima in assoluto (il punto più lontano).\\
+Poiché sia per il nido che per la zona in cui sono presenti gli oggetti, i punti di interesse sono quattro, sono state sommate le attrattività dei vari punti di interesse.\\
+Per quanto concerne il rilascio del feromone, l'agente rilascia una quantità costante ad ogni spostamento solo quando è di ritorno al nido. Poiché il feromone viene rilasciato solo quando l'agente è di ritorno al nido e viene utilizzato per indicare il percorso da effettuare per la ricerca degli oggetti, quando gli agenti sono di ritorno al nido, la probabilità  $p^k_{\iota\psi}$ per un agente \textit{k} di muoversi dalla posizione $\iota$ alla posizione $\psi$ è data da: $p^k_{\iota\psi}= \dfrac{\eta_{\iota\psi}}{\Sigma_k\eta_{\iota k}}$. \\\\
+Per lo spostamento, l'agente è in grado di spostarsi in un intorno di otto posizioni (N, NE, E, SE, S, SO, O, NO). E' stata inoltre sviluppata una versione alternativa in cui l'agente non può spostarsi nella direzione da cui proviene (lo spostamento è ridotto a un'alternativa di cinque posizioni).
+
+
+	\clearpage{\pagestyle{empty}\cleardoublepage}
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%per fare le conclusioni
+	\begin{thebibliography}{90}             %crea l'ambiente bibliografia
+		\rhead[\fancyplain{}{\bfseries \leftmark}]{\fancyplain{}{\bfseries
+				\thepage}}
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%aggiunge la voce Bibliografia
+		%   nell'indice
+		\addcontentsline{toc}{chapter}{Riferimenti}
+		%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%provare anche questo comando:
+		%%%%%%%%%%%\addcontentsline{toc}{chapter}{\numberline{}{Bibliografia}}
+		\bibitem{K1} Andrea Omicini. \textit{Agents: Definitions \& Conceptual Framework}
+		\bibitem{K2} CArtAgO. \textit{http://cartago.sourceforge.net}  
+		\bibitem{K3} Dropbox. \textit{https://www.dropbox.com/developers}  
+		\bibitem{k4} Alessandro Ricci, Michele Piunti, and Mirko Viroli. \textit{Environment programming in multi-agent systems: an artifact based perspective. Autonomous Agents and Multi-Agent Systems}, 23(2):158?192, 2010.   
+		\bibitem{K5} FireBase. \textit{https://firebase.google.com/} 
+		\bibitem{K6} Firmata. \textit{http://firmata.org}
+		\bibitem{K7} Firmata4j. \textit{https://github.com/kurbatov/firmata4j}
+		\bibitem{K8} Stefano Mariani. \textit{JADE: Java Agent DEvelopment Framework Overview}
+		\bibitem{K9} OpenCV. \textit{http://opencv.org/}
+		\bibitem{K10} Pi4j. \textit{http://pi4j.com/}
+		\bibitem{K11} Rafael H. Bordini, Jomi Fred Hubner, and Michael Wooldridge. \textit{Programming multi-agent system in AgentSpeak using Jason}. Wiley, 2007.
+		\bibitem{K12} Restlet. \textit{https://restlet.com/}
+		\bibitem{K13} Servoblaster. \textit{https://github.com/richardghirst/PiBits/tree/master/ServoBlaster}
+		\bibitem{K14} Andrea Omicini. \textit{The Many Agents Around}
+		
+	\end{thebibliography}
+
+\end{document}

@@ -53,34 +53,17 @@ public class ForagingModel3 extends ForagingModel{
 		if(!searchFood){
 			if((x-1)>=0){
 				location=new Location(x-1,y);
-				val.add(evaluatePosition(location, eta,alpha, beta));
+				val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
 				
 				if((y-1)>=0){
 					location=new Location(x-1,y-1);
-					val.add(evaluatePosition(location, eta,alpha, beta));
+					val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
 					
 				}
 				
 				if((y+1)<SIZE){
 					location=new Location(x-1,y+1);
-					val.add(evaluatePosition(location, eta,alpha, beta));
-				}
-				
-			}
-		}else{
-			if((x+1)<SIZE){
-				location=new Location(x+1,y);
-				val.add(evaluatePosition(location, eta,alpha,beta));
-				
-				if((y-1)>=0){
-					location=new Location(x+1,y-1);
-					val.add(evaluatePosition(location, eta,alpha, beta));
-					
-				}
-				
-				if((y+1)<SIZE){
-					location=new Location(x+1,y+1);
-					val.add(evaluatePosition(location, eta,alpha, beta));
+					val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
 				}
 				
 			}
@@ -88,19 +71,38 @@ public class ForagingModel3 extends ForagingModel{
 		
 		if((y-1)>=0){
 			location=new Location(x,y-1);
-			val.add(evaluatePosition(location, eta,alpha, beta));
+			val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
 			
 		}
 		
 		if((y+1)<SIZE){
 			location=new Location(x,y+1);
-			val.add(evaluatePosition(location, eta,alpha, beta));
+			val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
+		}
+		
+		if(searchFood){
+			if((x+1)<SIZE){
+				location=new Location(x+1,y);
+				val.add(evaluatePosition(location, eta,alpha,beta,searchFood));
+				
+				if((y-1)>=0){
+					location=new Location(x+1,y-1);
+					val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
+					
+				}
+				
+				if((y+1)<SIZE){
+					location=new Location(x+1,y+1);
+					val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
+				}
+				
+			}
 		}
 		
 		return val;
 	}
 	
-	protected Pair<Double,Location> evaluatePosition(Location location,double [][]eta,double alpha,double beta){
+	protected Pair<Double,Location> evaluatePosition(Location location,double [][]eta,double alpha,double beta,boolean searchFood){
 		
 		if(antInWallArea(location)){
 			return new Pair<>(0.0,location);
@@ -108,8 +110,14 @@ public class ForagingModel3 extends ForagingModel{
 		
 		lock.lock();
 		
-		double value=Math.pow(eta[location.x][location.y],beta)*
+		double value;
+		
+		if(searchFood){
+			value=Math.pow(eta[location.x][location.y],beta)*
 				Math.pow(tau[location.x][location.y],alpha);
+		}else{
+			value=eta[location.x][location.y];
+		}
 		
 		lock.unlock();
 		

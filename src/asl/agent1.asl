@@ -82,7 +82,6 @@ step(0).
 	-+success_clustering(0);
 	?clustering(P);
 	.max([0.3,P-(X+1)*0.1],Y);
-	.println("NON HO RACCOLTO NIENTE ",Y);
 	-+clustering(Y);
 	?leave(Leave);
 	!evaluate(Leave).
@@ -96,9 +95,6 @@ step(0).
 -!evaluate(_) <- 
 	.wait(1000);
 	!evaluateNest.
-	/*-+step(0);
-	moveIntoNest;
-	!walkIntoNest.*/
 	
 +!evaluateNest: clustering(P) & .random(N) & P>=N <-
 	-+step(0);

@@ -24,14 +24,21 @@ step(0).
 	!search.
 	
 +!search: (not nest & not food) | (nest & search(food)) | (food & search(nest)) <-
+	?search(nest);
 	?alpha(Alpha);
 	?beta(Beta);
-	?search(T);
 	releasePheromone;
-	moveToNextPosition(Alpha,Beta,T);
+	moveToNextPosition(Alpha,Beta,nest);
 	.wait(50);
 	!search.
 
+-!search: (not nest & not food) | (nest & search(food)) | (food & search(nest))<-
+	?alpha(Alpha);
+	?beta(Beta);
+	moveToNextPosition(Alpha,Beta,food);
+	.wait(50);
+	!search.
+	
 -!search.
 
 +!pickUpItemNest(Result): .random(X) & Result>=X <-
@@ -82,7 +89,6 @@ step(0).
 	-+success_clustering(0);
 	?clustering(P);
 	.max([0.3,P-(X+1)*0.1],Y);
-	.println("NON HO RACCOLTO NIENTE ",Y);
 	-+clustering(Y);
 	?leave(Leave);
 	!evaluate(Leave).
@@ -96,9 +102,6 @@ step(0).
 -!evaluate(_) <-
 	.wait(1000);
 	!evaluateNest.
-	/*-+step(0);
-	moveIntoNest;
-	!walkIntoNest.*/
 	
 +!evaluateNest: clustering(P) & .random(N) & P>=N <-
 	-+step(0);
@@ -124,7 +127,6 @@ step(0).
 
 +!releasePheromoneItem: not ready(_,_) <-
 	releasePheromoneItem;
-	releasePheromone;
 	.wait(2000);
 	!releasePheromoneItem.
 	

@@ -80,7 +80,19 @@ public class ForagingModel5 extends ForagingModel{
 				}
 				
 			}
-		}else{
+		}
+		
+		if((y-1)>=0){
+			location=new Location(x,y-1);
+			val.add(evaluatePosition(location,tau));
+		}
+		
+		if((y+1)<SIZE){
+			location=new Location(x,y+1);
+			val.add(evaluatePosition(location,tau));
+		}
+		
+		if(searchFood){
 			if((x+1)<SIZE){
 				location=new Location(x+1,y);
 				val.add(evaluatePosition(location,tau));
@@ -96,16 +108,6 @@ public class ForagingModel5 extends ForagingModel{
 				}
 				
 			}
-		}
-		
-		if((y-1)>=0){
-			location=new Location(x,y-1);
-			val.add(evaluatePosition(location,tau));
-		}
-		
-		if((y+1)<SIZE){
-			location=new Location(x,y+1);
-			val.add(evaluatePosition(location,tau));
 		}
 		
 		return val;

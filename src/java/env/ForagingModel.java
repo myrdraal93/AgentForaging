@@ -16,7 +16,7 @@ import jason.util.Pair;
 public abstract class ForagingModel extends GridWorldModel{
 
 	protected final static int SIZE=50;
-	protected final static int NUMBER_FOOD=15;
+	protected final static int NUMBER_FOOD=100;
 	public final static int NUMBER_AGENTS=100;
 	public final static int FOOD=16;
 	public final static int NEST=32;
@@ -52,18 +52,17 @@ public abstract class ForagingModel extends GridWorldModel{
 			int i=0;
 			while(true){
 				try {
-					Thread.sleep(15000);
+					Thread.sleep(10000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				
-				i++;
+				/*i++;
 				
 				if(i==3){
-					i=0;
+					i=0;*/
 					refillArea();
-					//System.out.println("Refill");
-				}
+				//}
 				
 				evaporatePheromone();
 				System.out.println(sdf.format(new Date(System.currentTimeMillis())));
