@@ -33,7 +33,14 @@ public class ForagingEnvironment extends Environment {
         if ((args.length == 2) && args[0].equals("gui")) {
         	value=Integer.parseInt(args[1]);
         	
-        	switch(value){
+        	if(value<=2){
+        		model=new ForagingModel1(value%2==0?false:true);
+        	}else if(value>=5){
+        		model=new ForagingModel5(value%2==0?false:true);
+        	}else{
+        		model=new ForagingModel3(value%2==0?false:true);
+        	}
+      /*  	switch(value){
         		case 1:model=new ForagingModel1();break;
         		case 2:model=new ForagingModel2();break;
         		case 3:model=new ForagingModel3();break;
@@ -42,7 +49,7 @@ public class ForagingEnvironment extends Environment {
         		case 6:model=new ForagingModel6();break;
         		default:break;
         	}
-        	
+        	*/
             this.model.setView(new ForagingView(this.model));
         }
         
@@ -62,13 +69,13 @@ public class ForagingEnvironment extends Environment {
         			case 1:position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
         					Double.parseDouble(action.getTerm(1).toString()),
         					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
-        			case 2:position=((ForagingModel2)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+        			case 2:position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
         					Double.parseDouble(action.getTerm(1).toString()),
         					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
         			case 3:position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
         					Double.parseDouble(action.getTerm(1).toString()),
         					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
-        			case 4:position=((ForagingModel4)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+        			case 4:position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
         					Double.parseDouble(action.getTerm(1).toString()),
         					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
         			default:break;
@@ -79,7 +86,7 @@ public class ForagingEnvironment extends Environment {
         			position=((ForagingModel5)model).
         					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
         		}else{
-        			position=((ForagingModel6)model).
+        			position=((ForagingModel5)model).
         					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
         		}
         	}
@@ -112,7 +119,7 @@ public class ForagingEnvironment extends Environment {
         		if(value==3){
         			((ForagingModel3)model).updatePheromone(agent);
         		}else{
-        			((ForagingModel4)model).updatePheromone(agent);
+        			((ForagingModel3)model).updatePheromone(agent);
         		}
         	}else{
         		
@@ -175,13 +182,13 @@ public class ForagingEnvironment extends Environment {
             			case 1:position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
             					Double.parseDouble(action.getTerm(1).toString()),
             					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
-            			case 2:position=((ForagingModel2)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+            			case 2:position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
             					Double.parseDouble(action.getTerm(1).toString()),
             					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
             			case 3:position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
             					Double.parseDouble(action.getTerm(1).toString()),
             					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
-            			case 4:position=((ForagingModel4)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+            			case 4:position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
             					Double.parseDouble(action.getTerm(1).toString()),
             					action.getTerm(2).equals(new LiteralImpl("food")),agent);break;
             			default:break;
@@ -192,7 +199,7 @@ public class ForagingEnvironment extends Environment {
             			position=((ForagingModel5)model).
             					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
             		}else{
-            			position=((ForagingModel6)model).
+            			position=((ForagingModel5)model).
             					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
             		}
             	}

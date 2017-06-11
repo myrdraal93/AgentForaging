@@ -9,7 +9,7 @@ import jason.util.Pair;
 public class ForagingModel2 extends ForagingModel1{
 
 	protected ForagingModel2() {
-		super();
+		super(true);
 	}
 	
 	@Override

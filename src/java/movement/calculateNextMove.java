@@ -50,13 +50,18 @@ public class calculateNextMove extends DefaultInternalAction {
 			coordinate.put(pair,force);
 		}
 		
-		double value1=0,value2=0,value3=0,value4=0,value5=0;
+		double value=-1;
+		Pair<Integer,Integer> max=null;
 		Object[] set=coordinate.keySet().toArray();
 		int i=0;
 		
 		for(Object tmp : set){
 			
-			if(i==0){
+			if(coordinate.get((Pair<Integer,Integer>)tmp)>value){
+				value=coordinate.get((Pair<Integer,Integer>)tmp);
+				max=(Pair<Integer,Integer>)tmp;
+			}
+			/*if(i==0){
 				value1=coordinate.get((Pair<Integer,Integer>)tmp);
 			}else if(i==1){
 				value2=coordinate.get((Pair<Integer,Integer>)tmp);
@@ -68,12 +73,28 @@ public class calculateNextMove extends DefaultInternalAction {
 				value5=coordinate.get((Pair<Integer,Integer>)tmp);
 			}
 			
-			i++;
+			i++;*/
+		}
+		
+		for(Object tmp : set){
+			
+			if(((Pair<Integer,Integer>)tmp).getFirst()!=max.getFirst()||((Pair<Integer,Integer>)tmp).getSecond()!=max.getSecond()){
+				value-=coordinate.get((Pair<Integer,Integer>)tmp);
+			}
+			
+		}
+		
+		if(value==0){
+			un.unifies(args[2],new NumberTermImpl(-1));
+			un.unifies(args[3],new NumberTermImpl(-1));
+		}else{
+			un.unifies(args[2],new NumberTermImpl(max.getFirst()));
+			un.unifies(args[3],new NumberTermImpl(max.getSecond()));
 		}
 		
 		//System.out.println("Value1: "+value1+" Value2: "+value2+" Value3: "+value3);
 		
-		if(/*(value1==value2&& value1!=0)||(value2==value3&&value2!=0)||(value1==value3&&value1!=0)*/value1==value2&&value2==value3&&value3==value4&&value4==value5){
+		/*if(value1==value2&&value2==value3&&value3==value4&&value4==value5){
 			un.unifies(args[2],new NumberTermImpl(-1));
 			un.unifies(args[3],new NumberTermImpl(-1));
 		}else{
@@ -93,7 +114,7 @@ public class calculateNextMove extends DefaultInternalAction {
 			
 			un.unifies(args[2],new NumberTermImpl(tmp.getFirst()));
 			un.unifies(args[3],new NumberTermImpl(tmp.getSecond()));
-		}
+		}*/
 		
     	
         return true;

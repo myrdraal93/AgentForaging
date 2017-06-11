@@ -9,7 +9,7 @@ import jason.util.Pair;
 public class ForagingModel4 extends ForagingModel3{
 
 	protected ForagingModel4() {
-		super();
+		super(true);
 	}
 	
 	

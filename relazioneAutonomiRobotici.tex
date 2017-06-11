@@ -82,7 +82,7 @@
 	%   nell'indice
 	\addcontentsline{toc}{chapter}{Introduzione}
 
-La stigmergy è una forma indiretta di coordinazione tra agenti che sfrutta l'ambiente. In particolare, un agente modifica l'ambiente e, un altro agente, reagisce al cambiamento [inserire riferimento roli]. Le formiche sono una tra le specie animali che sfruttano questo tipo di coordinazione.\\
+La stigmergy è una forma indiretta di coordinazione tra agenti che sfrutta l'ambiente. In particolare, la comunicazione avviene tramite modifiche da parte degli agenti sull'ambiente [inserire riferimento roli]. Le formiche sono una tra le specie animali che sfruttano questo tipo di coordinazione.\\
 Le formiche che si occupano della ricerca del cibo, una volta individuato, durante il ritorno al formicaio, rilasciano feromone nell'ambiente; in modo da comunicare il percorso da effettuare. Inoltre, all'interno del formicaio, effettuano corpse clustering nelle zone in cui sono custodite le larve; in modo da proteggerle.\\
 Ispirandosi al comportamento delle formiche, si è voluto simulare, tramite MAS, il fenomeno del foraging e del corpse clustering; adottando come meccanismo di coordinazione indiretta la stigmergy. Per quanto concerne il foraging, sono stati realizzate diverse metodologie. Inoltre, è stato realizzato una forma di trasporto cooperativo in caso di oggetti troppo pesanti per il singolo agente.\\
 Lo scopo di questa simulazione è quello di suddividere il lavoro degli agenti tra il foraging e il corpse clustering. Verranno inoltre confrontate le diverse metodologie realizzate per il foraging. Una volta individuata le metodologia migliore, verrà analizzato il comportamento globale del sistema al variare di alcuni parametri.\\
@@ -127,12 +127,19 @@ Come detto nell'introduzione del capitolo, per la realizzazione di questo modell
 
 L'arena è formata da una griglia 100x100 non toroidale, suddivisa in due parti.\\
 L'area all'interno dei bordi grigi rappresenta l'ambiente esplorabile dagli agenti per il recupero degli oggetti. Come visibile, al centro è presente un blocco asimmetrico che rappresenta un ostacolo. L'area in rosso rappresenta il "nido" degli agenti, mentre l'area in giallo la zona in cui sono presenti gli oggetti.\\
-La parte superiore dell'arena rappresenta l'interno del "nido" in cui verranno depositati gli oggetti recuperati e che verranno aggregati in un secondo momento. 
+La parte superiore dell'arena rappresenta l'interno del "nido" in cui verranno depositati gli oggetti recuperati e che verranno aggregati in un secondo momento.\\
+Agli agenti è associato un colore che rappresenta il loro stato corrente che può essere:
+
+\begin{itemize}
+	\item verde: l'agente è alla ricerca degli oggetti o è di ritorno al nido
+	\item blu: l'agente è di ritorno al nido con un oggetto
+	\item arancione: l'agente sta trasportando un oggetto in modalità cooperativa
+\end{itemize}
 
 \section{Foraging}
 
 Per replicare il fenomeno presente in natura del foraging, sono state sviluppate diverse metodologie. Per poterle confrontare è necessario fissare alcuni parametri per permettere un confronto.\\
-Anche se si contrappone con un'assunzione fatta nella sezione precedente, poiché, al momento siamo interessati solo al fenomeno del foraging, si assume che gli oggetti presenti nell'ambiente siano inesauribili e che non sia necessario un trasporto cooperativo.\\
+Anche se si contrappone con un'assunzione fatta nella sezione precedente, poiché, al momento siamo interessati solo al fenomeno del foraging, si assume che le risorse non si esauriscano e che non sia necessario un trasporto cooperativo.\\
 Di seguito sono presenti i parametri fissati per il confronto tra le diverse metodologie:\\
 
 \begin{tabular}{p{5cm}|p{5cm}} 
@@ -142,7 +149,8 @@ Di seguito sono presenti i parametri fissati per il confronto tra le diverse met
 	 Feromone max. & 10000 \\
 	 Feromone rilasciato & 10\\
 	 \% Evaporazione & 0.3 \% \\
-	 Tempo evaporazione & 10 s
+	 Tempo evaporazione & 10 s \\
+	 Refresh rate & 50 ms 
 \end{tabular}
 \\
 \subsection{Metodologia 1}
@@ -169,10 +177,155 @@ for(int column=0;column<100;column++){
 
 L'euristica è stata calcolata sia per la zona in cui sono presenti gli oggetti che per il nido. Questo perchè l'agente è stato modellato in modo che non ricordi la strada percorsa.\\
 Come visibile, l'attrattività per una coordinata è data dalla differenza tra la distanza dal punto di interesse (in base alla coordinata in cui ci si trova) e quella massima in assoluto (il punto più lontano).\\
-Poiché sia per il nido che per la zona in cui sono presenti gli oggetti, i punti di interesse sono quattro, sono state sommate le attrattività dei vari punti di interesse.\\
+Sia per il nido che per la zona in cui sono presenti gli oggetti, i punti di interesse sono quattro, per cui, sono state sommate le attrattività dei vari punti di interesse.\\
 Per quanto concerne il rilascio del feromone, l'agente rilascia una quantità costante ad ogni spostamento solo quando è di ritorno al nido. Poiché il feromone viene rilasciato solo quando l'agente è di ritorno al nido e viene utilizzato per indicare il percorso da effettuare per la ricerca degli oggetti, quando gli agenti sono di ritorno al nido, la probabilità  $p^k_{\iota\psi}$ per un agente \textit{k} di muoversi dalla posizione $\iota$ alla posizione $\psi$ è data da: $p^k_{\iota\psi}= \dfrac{\eta_{\iota\psi}}{\Sigma_k\eta_{\iota k}}$. \\\\
 Per lo spostamento, l'agente è in grado di spostarsi in un intorno di otto posizioni (N, NE, E, SE, S, SO, O, NO). E' stata inoltre sviluppata una versione alternativa in cui l'agente non può spostarsi nella direzione da cui proviene (lo spostamento è ridotto a un'alternativa di cinque posizioni).
 
+\subsubsection{Risultati}
+
+All'avvio, con una completa libertà di spostamento, poiché il livello di feromone è nullo e, nonostante l'euristica che "suggerisce" il percorso, gli agenti impiegano del tempo prima di raggiungere la zona in cui sono presenti gli oggetti. Una volta che alcuni agenti recuperano gli oggetti e iniziano a rilasciare il feromone, gli altri agenti dovrebbero iniziare a dirigersi verso la zona di recupero con una maggiore facilità.\\
+Di seguito è presente una figura che ritrae lo stato del sistema dopo circa 30 secondi dall'avvio
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/4_8_1"}
+	\\Figura 1.2: Situazione dopo 30 secondi
+\end{center}
+
+Dopo 30 secondi circa, la maggior parte degli agenti si trova nei pressi del nido. Dopo 1 minuto, alcuni agenti hanno recuperato un oggetto e si dirigono verso il nido, mentre gli agenti restanti iniziano anch'essi a dirigersi verso la zona di recupero. Siccome nessun agente ha completato il percorso (compreso il ritorno al nido) almeno una volta, non emerge ancora lo shortest path.
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/4_8_2"}
+	\\Figura 1.3: Situazione dopo 1 minuto
+\end{center}
+
+Dopo 4 minuti, diversi agenti sono ritornati al nido, ma, molti altri, impiegano troppo tempo. Inoltre, non emerge lo shortest path e, prima che si generi, potrebbe essere necessario del tempo.
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/4_8_4"}
+	\\Figura 1.4: Situazione dopo 4 minuti
+\end{center}
+
+Le difficoltà maggiori si verificano al momento del ritorno, in quanto, la posizione successiva dell'agente viene determinata in modo probabilistico facendo affidamento solamente sull'euristica. Analogamente, gli agenti riscontrano difficoltà nel raggiungere la zona di recupero all'inizio, a causa dell'assenza di feromone.\\
+Si è provato a ottenere un miglioramento limitando la libertà di scelta della posizione successiva da parte dell'agente. L'agente non potrà tornare nella direzione da cui proviene (es: se proviene dal nido non potrà effettuare gli spostamenti in direzione NO, O, SO); quindi, la posizione successiva è determinata sulla base di 5 alternative.\\
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/4_5_1"}
+	\\Figura 1.5: Situazione successiva all'avvio con minore libertà di spostamento
+\end{center}
+
+Pochi secondi dopo l'avvio del sistema, gli agenti si trovano subito nei pressi dell'ostacolo e scelgono un percorso.\\
+Dopo 10 secondi circa i primi agenti ritornano al nido. Come si evince dalla figura, non emerge ancora lo shortest path.
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/4_5_2"}
+	\\Figura 1.6: Situazione dopo 10 secondi con minore libertà di spostamento
+\end{center}
+
+Dopo 1 minuto si presenta la seguente situazione: gli agenti, soprattutto al ritorno, quando si trovano dinnanzi a un ostacolo, possono muoversi in due direzioni (nel caso dell'arena, possono muoversi in direzione nord o sud) e si bloccano cambiando continuamente posizione ed è necessario un quantitativo di tempo non irrilevante prima che superino l'ostacolo. Nonostante questo problema, è sufficiente un minuto, per notare come gli agenti, che inizialmente avevano scelto il percorso più lungo, successivamente; tendono a scegliere il percorso più corto; generando il fenomeno emergente dello shortest path.
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/4_5_3"}
+	\\Figura 1.6: Situazione dopo 1 minuto con minore libertà di spostamento
+\end{center}
+
+In conclusione, questa metodologia, lasciando completa libertà di movimento agli agenti, risulta essere inefficace. Per contro, limitando il movimento agli agenti, si ottiene un miglioramento, anche se, gli agenti presentano delle difficoltà nell'evitare gli ostacoli.\\
+Inoltre, questa metodologia, al di là dei risultati, richiede una conoscenza a priori dell'ambiente in cui gli agenti sono situati in modo da costruire l'attrattività a priori $\eta$.
+
+\subsection{Metodologia 2}
+
+La seconda metodologia utilizza un approccio completamente diverso dalla prima che non richiede una conoscenza a priori dell'ambiente. [riferimento] hanno simulato l'ant foraging utilizzando due tipi di feromoni, assumendo che essi possano coesistere nell'ambiente. La seguente metodologia utilizza quella adottata da [riferimento].\\
+Un agente, quando è alla ricerca degli oggetti, rilascia un feromone $\gamma$, mentre, quando è di ritorno al nido, rilascia un feromone $\tau$.\\
+La probabilità $p^k_{\iota\psi}$ per un agente \textit{k} di muoversi dalla posizione $\iota$ alla posizione $\psi$, quando è alla ricerca degli oggetti, è data da: $p^k_{\iota\psi}= \dfrac{\tau_{\iota\psi}}{\Sigma_k\tau_{\iota k}}$.\\
+Analogamente, la probabilità $p^k_{\iota\psi}$ per un agente \textit{k} di muoversi dalla posizione $\iota$ alla posizione $\psi$, quando è di ritorno, è data da: $p^k_{\iota\psi}= \dfrac{\gamma_{\iota\psi}}{\Sigma_k\gamma_{\iota k}}$.\\
+In questo modo, verranno a formarsi due scie di feromone, che indicheranno il percorso per tornare al nido e il percorso per recuperare gli oggetti.\\
+Come per la prima metodologia, gli agenti potranno muoversi in tutte le direzioni oppure il loro movimento verrà limitato.\\
+
+\subsubsection{Risultati}
+
+Lasciando una completa libertà di movimento agli agenti, inizialmente, si ha un risultato simile alla metodologia vista nel paragrafo precedente. Ovvero è necessario quasi un minuto prima che diversi agenti recuperino degli oggetti. Inoltre, dopo svariati minuti, non si ha una formazione dello shortest path.
+\\A differenza della precedente metodologia, però, si genera un fenomeno emergente interessante. Se un agente di ritorno al nido, incontra un agente che è alla ricerca degli oggetti, a causa dei due feromoni rilasciati, si crea un massimo locale e, gli agenti che sono di ritorno al nido, seguono gli agenti alla ricerca degli oggetti e viceversa. Come visibile nella figura seguente, gli agenti alla ricerca degli oggetti tendono ad aggregarsi tra loro e muoversi nelle zone in cui è presente l'agente che sta trasportando un oggetto.\\
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/6_8_1"}
+	\\Figura 1.7: Aggregazione di agenti
+\end{center}
+
+Come per la metodologia precedente, limitando la scelta della posizione successiva, si ottiene un miglioramento. Anche in questo caso, dopo 10 secondi circa, i primi agenti ritornano al nido con un oggetto. Dopo 20/30 secondi circa, emerge lo shortest path e il numero di agenti che prediligono il percorso più lungo è limitato. Con il passare del tempo, tale percorso viene abbandonato. Tuttavia, anche questa soluzione risulta essere poco adatta. Quando un agenti si trova dinnanzi a un ostacolo, come per la metodologia precedente, la scelta della posizione successiva è ridotta a due alternative e, se in quell'intorno, la presenza di feromone è uguale o simile, la probabilità di muoversi in una delle due direzioni è di circa il 50\%. E' quindi necessario un certo quantitativo di tempo prima che l'agente superi l'ostacolo.\\
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/6_5_1"}
+	\\Figura 1.8: Agenti bloccati con minore libertà di movimento
+\end{center}
+
+Rispetto alla prima metodologia, la soluzione, con piena libertà di movimento risulta essere peggiore, mentre, la soluzione con una libertà di movimento ridotta, risulta essere equivalente alla rispettiva soluzione della metodologia precedente. Naturalmente questa soluzione è preferibile in quanto non richiede una conoscenza a priori dell'ambiente.
+
+\subsection{Metodologia 3}
+
+Tale metodologia si propone come una soluzione ibrida tra le due precedenti, finalizzata alla risoluzione dei problemi emersi dalle metodologie precedenti.\\
+La probabilità $p^k_{\iota\psi}$ per un agente \textit{k} di muoversi dalla posizione $\iota$ alla posizione $\psi$, quando è alla ricerca di oggetti, è data da: $p^k_{\iota\psi}= \dfrac{\tau^\alpha_{\iota\psi}\eta^\beta_{\iota\psi}}{\Sigma_k\tau^\alpha_{\iota k}\eta^\beta_{\iota k}}$. \\
+La probabilità $p^k_{\iota\psi}$ per un agente \textit{k} di muoversi dalla posizione $\iota$ alla posizione $\psi$, quando è alla ricerca del nido, è data da: $p^k_{\iota\psi}= \dfrac{\gamma^\alpha_{\iota\psi}\eta^\beta_{\iota\psi}}{\Sigma_k\gamma^\alpha_{\iota k}\eta^\beta_{\iota k}}$. \\
+L'attrattività a priori $\eta$ è stata calcolata esattamente come nella prima metodologia.\\
+Come per le altre metodologie, si sono presi in considerazione il caso in cui l'agente ha una completa libertà di movimento e quello in cui la sua scelta è limitata.\\
+
+\subsubsection{Risultati}
+
+Con una piena libertà di movimento, tale metodologia risolve i problemi della prima metodologia, ma non risolve completamente il problema dell'aggregazione degli agenti della seconda metodologia. Nella figura seguente è possibile notare la situazione del sistema dopo 3 minuti.\\
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/1_8_1"}
+	\\Figura 1.8: Situazione dopo 3 minuti
+\end{center}
+
+Come visibile, alcuni agenti riescono a ritornare al nido, ma si verifica ancora il fenomeno dell'aggregazione. A differenza della seconda metodologia, grazie all'attrattività a priori che suggerisce il percorso preferibile da percorrere, gli agenti riescono a "rompere" l'aggregazione e a proseguire. Purtroppo è necessario del tempo prima. Come visibile nella figura precedente, dopo 3 minuti, sono pochi gli agenti che sono riusciti a "rompere" l'aggregazione e a rilasciare l'oggetto nel nido.\\
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/1_5_1"}
+	\\Figura 1.9: Situazione dopo 1 minuto con minore libertà di movimento
+\end{center}
+
+Riducendo le possibilità di scelta della posizione successiva, invece, il miglioramento è notevole. Come per le metodologie precedenti, dopo pochi secondi, alcuni agenti raggiungono il nido. Inoltre, come visibile dalla figura precedente, dopo un minuto, emerge lo shortest path. Dopo 2 minuti circa, il percorso più lungo è percorso da pochi agenti.\\
+
+\begin{center}  
+	\includegraphics[width=0.7\linewidth]{"Desktop/Sistemi Robotici/1_5_2"}
+	\\Figura 1.10: Situazione dopo 2 minuti con minore libertà di movimento
+\end{center}
+
+Come per le precedenti metodologie, con minore libertà di scelta, gli agenti possono presentare delle difficoltà nell'aggirare gli ostacoli. Se con le precedenti metodologie potevano essere necessari dei minuti, ora, dopo pochi secondi, gli agenti sono in grado di aggirare gli ostacoli.
+
+\subsection{Conclusioni}
+
+La miglior metodologia in assoluto risulta essere la terza, ma con una limitazione sulla possibile posizione successiva. Per contro, tale soluzione richiede una conoscenza a priori dell'ambiente in cui gli agenti sono situati. Se non si dispongono di tali informazioni, allora, la seconda metodologia, sempre con delle limitazioni sui movimenti è la più adatta; anche se, potrebbero essere necessari dei minuti prima che gli agenti superino gli ostacoli.
+
+\section{Trasporto cooperativo}
+
+Il trasporto cooperativo realizzato è il risultato di un fenomeno emergente. Ogni agente determina indipendentemente dagli altri, la posizione successiva. Così facendo, ogni agente applica una forza sull'oggetto. In base alle somme delle forze applicate, prevale una direzione piuttosto che un'altra.\\
+Ad ogni agente è associato un peso che varia tra 0 e 5, mentre ad ogni oggetto è associato un peso che varia tra 0 e 70.\\ Un agente è in grado di trasportare 5 volte il suo peso. Se il peso dell'oggetto è 5 volte superiore a quello dell'agente, quest'ultimo, mediante l'ambiente, applica un meccanismo di reclutamento. Rilascia un feromone nella posizione in cui si trova, in modo da aumentare la probabilità degli altri agenti di dirigersi nella posizione in cui è richiesto aiuto. Inoltre, rilascia un altro tipo di feromone sull'oggetto, in modo da aumentare la probabilità di ricevere aiuto da parte degli altri agenti. Gli agenti, una volta giunti nell'area in cui sono presenti gli oggetti, selezionano l'oggetto da trasportare nel seguente modo: $P_i =\dfrac{\gamma_i}{\Sigma_k \gamma_k}$.\\ Se gli agenti che giungono in aiuto non sono in grado di trasportare l'oggetto, anch'essi rilasciano del feromone.\\
+Quando gli agenti sono in grado di trasportare l'oggetto, interrompono il reclutamento.
+
+\section{Corpse clustering}
+
+Il clustering degli oggetti si basa sull'attrazione di un agente di depositare un oggetto in una zona. La probabilità che un agente prenda un oggetto è calcolata come: $\dfrac{k1}{(k1+f)^2}$. La probabilità che un agente lasci l'oggetto è invece calcolata come: $\dfrac{f}{(k2+f)^2}$. Dove \textit{k1} e \textit{k2} sono costanti mentre \textit{f} è il numero di oggetti presenti nella zona percepiti dall'agente.\\
+Quando un oggetto viene riportato al nido, quest'ultimo viene posizionato in un punto random all'interno del nido.\\
+Quando un agente decide di occuparsi del corpse clustering, viene posizionato in un punto random all'interno del nido ed effettua 100 spostamenti. Se entro 100 spostamenti trova un oggetto da rilevare, lo prende e lo rilascia in una nuova posizione in base ai criteri spiegati precedentemente. Una volta depositato l'oggetto, se gli spostamenti effettuati sono minori di 100, continua con la ricerca di altri oggetti da spostare, altrimenti valuta se continuare con il corpse clustering o se iniziare la ricerca degli oggetti.
+
+\section{Suddivisione del lavoro}
+
+Quando un agente ritorna al nido, valuta se la sua prossima azione consiste nell'andare nuovamente alla ricerca degli oggetti. Tale valutazione avviene tramite calcolo probabilistico. Se l'agente non dovesse occuparsi del recupero degli oggetti, allora, valuterà se effettuare corpse clustering. Anche tale valutazione avviene tramite calcolo probabilistico. Di seguito è possibile trovare il criterio con cui si calcola la probabilità di un agente di eseguire un task.\\
+
+
+\begin{verbatim}
+if(succeeded){
+    success <- success+1
+    fail <- 0
+    P <- max(Max,P+success*delta)
+}else{
+    success <- 0
+    fail <- fail+1
+    P <- min(Min,P+fail*delta)
+}
+\end{verbatim}
+
+In questo modo, un agente che è meno propenso a trasportare oggetti nel nido, avrà minore possibilità di andare alla ricerca degli oggetti. Non è detto che tale agente sia invece più propenso a effettuare corpse clustering in quanto anche per questo task è associata una probabilità se eseguire o meno tale operazione. Si possono verificare dei casi in cui degli agenti non siano adatti nè per il recupero degli oggetti nè per il corpse clustering.
 
 	\clearpage{\pagestyle{empty}\cleardoublepage}
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%per fare le conclusioni

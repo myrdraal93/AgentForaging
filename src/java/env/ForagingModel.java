@@ -28,13 +28,14 @@ public abstract class ForagingModel extends GridWorldModel{
 	protected ReentrantLock lockAgent,lock,lockFood,lockFoodNest;
 	protected int pheromone;
 	protected double rho;
+	protected boolean flag;
 	private List<Boolean> carryingFood,cooperative;
 	protected List<Item> item4824,item4825,item4924,item4925;
 	private List<Location> itemInNest;
 	
-	public ForagingModel(){
+	public ForagingModel(boolean flag){
 		super(SIZE,SIZE,NUMBER_AGENTS);
-		
+		this.flag=flag;
 		lock=new ReentrantLock();
 		lockFood=new ReentrantLock();
 		lockFoodNest=new ReentrantLock();
@@ -57,7 +58,7 @@ public abstract class ForagingModel extends GridWorldModel{
 					e.printStackTrace();
 				}
 				
-				/*i++;
+			/*	i++;
 				
 				if(i==3){
 					i=0;*/
@@ -483,10 +484,10 @@ public abstract class ForagingModel extends GridWorldModel{
 		
 		Random r=new Random();
 		
-		/*item4824.add(new Item(r.nextInt(41)+30));
+		item4824.add(new Item(r.nextInt(41)+30));
 		item4825.add(new Item(r.nextInt(41)+30));
 		item4924.add(new Item(r.nextInt(41)+30));
-		item4925.add(new Item(r.nextInt(41)+30));*/
+		item4925.add(new Item(r.nextInt(41)+30));
 	}
 	
 	private void setEnvironment(){
@@ -533,7 +534,7 @@ public abstract class ForagingModel extends GridWorldModel{
 			IntStream.range(item4925.size(),NUMBER_FOOD-1).forEach(i->item4925.add(new Item(0)));
 			
 			Random r=new Random();
-		/*	
+			
 			if(item4824.size()<NUMBER_FOOD){
 				item4824.add(new Item(r.nextInt(41)+30));
 			}
@@ -548,7 +549,7 @@ public abstract class ForagingModel extends GridWorldModel{
 			
 			if(item4925.size()<NUMBER_FOOD){
 				item4925.add(new Item(r.nextInt(41)+30));
-			}*/
+			}
 			lockFood.unlock();
 		//}
 	}

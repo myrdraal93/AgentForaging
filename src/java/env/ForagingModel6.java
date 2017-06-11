@@ -8,6 +8,11 @@ import jason.util.Pair;
 
 public class ForagingModel6 extends ForagingModel5{
 
+	protected ForagingModel6() {
+		super(true);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
 	protected List<Pair<Double,Location>> calculateGrade(int x, int y,boolean searchFood){
 		ArrayList<Pair<Double,Location>> val=new ArrayList<>();

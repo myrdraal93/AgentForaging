@@ -11,8 +11,8 @@ public class ForagingModel1 extends ForagingModel{
 
 	protected double [][] tauToFood,tauToNest,etaToFood,etaToNest;
 	
-	protected ForagingModel1() {
-		super();
+	protected ForagingModel1(boolean flag) {
+		super(flag);
 	}
 	
 	public void updatePheromone(int agent,boolean searchFood){
@@ -65,7 +65,7 @@ public class ForagingModel1 extends ForagingModel{
 		
 		Location location;
 		
-		if(!searchFood){
+		if(!searchFood || !flag){
 			if((x-1)>=0){
 				location=new Location(x-1,y);
 				val.add(evaluatePosition(location, eta, tau, alpha, beta));
@@ -95,7 +95,7 @@ public class ForagingModel1 extends ForagingModel{
 			val.add(evaluatePosition(location, eta, tau, alpha, beta));
 		}
 		
-		if(searchFood){
+		if(searchFood || !flag){
 			if((x+1)<SIZE){
 				location=new Location(x+1,y);
 				val.add(evaluatePosition(location, eta, tau, alpha,beta));

@@ -23,8 +23,8 @@ step(0).
 	+beta(Beta);
 	!search.
 	
-+!search: (not nest & not food) | (nest & search(food)) | (food & search(nest)) <-
-	?search(nest);
++!search: (not nest & not food & search(nest))/* | (nest & search(food)) */ | (food & search(nest)) <-
+	//?search(nest);
 	?alpha(Alpha);
 	?beta(Beta);
 	releasePheromone;
@@ -32,7 +32,7 @@ step(0).
 	.wait(50);
 	!search.
 
--!search: (not nest & not food) | (nest & search(food)) | (food & search(nest))<-
++!search: (not nest & not food & search(food)) | (nest & search(food)) /*| (food & search(nest))*/<-
 	?alpha(Alpha);
 	?beta(Beta);
 	moveToNextPosition(Alpha,Beta,food);
