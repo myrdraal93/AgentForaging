@@ -53,20 +53,20 @@ public abstract class ForagingModel extends GridWorldModel{
 			int i=0;
 			while(true){
 				try {
-					Thread.sleep(10000);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 				
-			/*	i++;
+				i++;
 				
-				if(i==3){
-					i=0;*/
+				if(i==4){
+					i=0;
 					refillArea();
-				//}
+				}
 				
 				evaporatePheromone();
-				System.out.println(sdf.format(new Date(System.currentTimeMillis())));
+				//System.out.println(sdf.format(new Date(System.currentTimeMillis())));
 			}
 		}).start();
 	}
