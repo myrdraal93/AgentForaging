@@ -15,33 +15,19 @@ public class ForagingModel3 extends ForagingModel{
 		super(flag);
 	}
 	
-	public void updatePheromone(int agent){
-		/*synchronized(*/lock.lock();//){
-			Location position;
+	public synchronized void updatePheromone(int agent){
+		Location position=getAgPos(agent);
 			
-			position=getAgentPosition(agent);
-			//synchronized(lockAgent){
-				//position=getAgPos(agent);
-			//}
-			
-			if(tau[position.x][position.y]+pheromone<10000){
-				tau[position.x][position.y]+=pheromone;
-			}else{
-				tau[position.x][position.y]=10000;
-			}
-			
-			lock.unlock();
-		//}
+		if(tau[position.x][position.y]+pheromone<10000){
+			tau[position.x][position.y]+=pheromone;
+		}else{
+			tau[position.x][position.y]=10000;
+		}
 	}
 	
-	public Location getNextPosition(double alpha,double beta,boolean searchFood,int ant){
-		Location position;
-		position=getAgentPosition(ant);
-		//synchronized(lockAgent){
-			//position=getAgPos(ant);
-		//}
-		Location location=montecarlo(calculateGrade(position.x,position.y,alpha,beta,searchFood));
-		return location;
+	public synchronized Location getNextPosition(double alpha,double beta,boolean searchFood,int agent){
+		Location position=getAgPos(agent);
+		return montecarlo(calculateGrade(position.x,position.y,alpha,beta,searchFood));
 	}
 	
 	
@@ -104,11 +90,10 @@ public class ForagingModel3 extends ForagingModel{
 	
 	protected Pair<Double,Location> evaluatePosition(Location location,double [][]eta,double alpha,double beta,boolean searchFood){
 		
-		if(antInWallArea(location)){
+		if(agentInWallArea(location)){
 			return new Pair<>(0.0,location);
 		}
 
-		lock.lock();
 		double value;
 		
 		if(searchFood){
@@ -118,31 +103,21 @@ public class ForagingModel3 extends ForagingModel{
 			value=eta[location.x][location.y];
 		}
 		
-		lock.unlock();
-		
 		return new Pair<>(value,location);
-		
 	}
 	
 	
-	protected void evaporatePheromone(){
-		/*synchronized(*/lock.lock();//){
-			for(int column=0;column<SIZE;column++){
-				for(int row=0;row<SIZE;row++){
-					tau[column][row]*=rho;
-				}
+	protected synchronized void evaporatePheromone(){
+		for(int column=0;column<SIZE;column++){
+			for(int row=0;row<SIZE;row++){
+				tau[column][row]*=rho;
 			}
-			
-			lock.unlock();
-		//}
+		}
 		
-		/*synchronized(*/lockFood.lock();//){
-			IntStream.range(0,item4824.size()).forEach(i->item4824.get(i).evaporatePheromone());
-			IntStream.range(0,item4825.size()).forEach(i->item4825.get(i).evaporatePheromone());
-			IntStream.range(0,item4924.size()).forEach(i->item4924.get(i).evaporatePheromone());
-			IntStream.range(0,item4925.size()).forEach(i->item4925.get(i).evaporatePheromone());
-			lockFood.unlock();
-		//}
+		IntStream.range(0,item4824.size()).forEach(i->item4824.get(i).evaporatePheromone());
+		IntStream.range(0,item4825.size()).forEach(i->item4825.get(i).evaporatePheromone());
+		IntStream.range(0,item4924.size()).forEach(i->item4924.get(i).evaporatePheromone());
+		IntStream.range(0,item4925.size()).forEach(i->item4925.get(i).evaporatePheromone());
 	}
 	
 	protected void initializeACO(){

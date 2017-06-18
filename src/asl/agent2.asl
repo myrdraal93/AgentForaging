@@ -23,8 +23,7 @@ step(0).
 	+beta(Beta);
 	!search.
 	
-+!search: (not nest & not food & search(nest))/* | (nest & search(food)) */ | (food & search(nest)) <-
-	//?search(nest);
++!search: (not nest & not food & search(nest)) | (food & search(nest)) <-
 	?alpha(Alpha);
 	?beta(Beta);
 	releasePheromone;
@@ -32,7 +31,7 @@ step(0).
 	.wait(50);
 	!search.
 
-+!search: (not nest & not food & search(food)) | (nest & search(food)) /*| (food & search(nest))*/<-
++!search: (not nest & not food & search(food)) | (nest & search(food)) <-
 	?alpha(Alpha);
 	?beta(Beta);
 	moveToNextPosition(Alpha,Beta,food);
@@ -80,8 +79,7 @@ step(0).
 	moveTo(X,Y);
 	?item_moved;
 	-item_moved;
-	?leave(P);
-	!evaluate(P).
+	!evaluate.
 
 -!walkIntoNest <-
 	?fail_clustering(X);
@@ -90,16 +88,15 @@ step(0).
 	?clustering(P);
 	.max([0.3,P-(X+1)*0.1],Y);
 	-+clustering(Y);
-	?leave(Leave);
-	!evaluate(Leave).
+	!evaluate.
 
 	
-+!evaluate(P): .random(N) & P>=N <-
++!evaluate: leave(P) & .random(N) & P>=N <-
 	.wait(1000);
 	-+search(food);
 	!search.
 
--!evaluate(_) <-
+-!evaluate <-
 	.wait(1000);
 	!evaluateNest.
 	
@@ -109,47 +106,40 @@ step(0).
 	!walkIntoNest.
 	
 -!evaluateNest <-
-	?leave(P);
-	!evaluate(P).
+	!evaluate.
 		
 +!pickUpFood <-
-	removePerceptCooperativeTransport;
-	.abolish(agent_position(_,_,_,_));
 	?weight(W);
 	pickUpFood(W);
 	+carrying;
 	-+search(nest).
 	
--!pickUpFood: not heavy & not ready(_,_)<-
+-!pickUpFood: not heavy & not ready <-
 	-+search(nest).
 	
 -!pickUpFood<- .drop_intention(search).	
 
-+!releasePheromoneItem: not ready(_,_) <-
++!releasePheromoneItem: not ready <-
 	releasePheromoneItem;
 	.wait(2000);
 	!releasePheromoneItem.
 	
 -!releasePheromoneItem.
 	
-+!moveTo(X,Y) : X==-1 & Y==-1 & not nest<- 
-	?weight(Weight);
++!moveTo(X,Y) : X==-1 & Y==-1 & not nest<-
 	releasePheromone.
 	
 +!moveTo(X,Y): not (X==-1) & not (Y==-1) & not nest<-
 	moveTo(X,Y);
-	?weight(Weight);
 	releasePheromone.
 
 -!moveTo(_,_).
 
-+!sendNextPosition: ready(_,List) <-
-	?next_position(NextX,NextY);
-	.my_name(Name);
++!moveItem <-
+	?alpha(Alpha);
+	?beta(Beta);
 	?weight(W);
-	.send(List,tell,agent_position(Name,NextX,NextY,W)).
-
--!sendNextPosition <- !sendNextPosition.
+	moveItem(Alpha,Beta,nest,W).
 
 +food: search(food) <-
 	!pickUpFood.
@@ -163,7 +153,7 @@ step(0).
 	?leave(P);
 	.min([1,P+(X+1)*0.2],Y);
 	-+leave(Y);
-	!evaluate(Y).
+	!evaluate.
 		
 +nest: not carrying & search(nest)<-
 	?fail(X);
@@ -172,33 +162,23 @@ step(0).
 	?leave(P);
 	.max([0.3,P-(X+1)*0.1],Y);
 	-+leave(Y);
-	!evaluate(Y).
+	!evaluate.
 
 +heavy <-
 	!releasePheromoneItem.
 	
-+ready(N,List) <-
++ready<-
+	removePerceptCooperativeTransport;
 	-+search(nest);
 	+carrying;
-	?alpha(Alpha);
-	?beta(Beta);
-	getNextPosition(Alpha,Beta,nest);
-	.wait(100);
-	!sendNextPosition.
+	!moveItem;
+	.wait(50).
 
-+agent_position(_,_,_,_) : .count(agent_position(_,_,_,_),X) & ready(Y,List) & X==Y  & search(nest)<- 
-	.findall(position(N,W,S,Z),agent_position(N,W,S,Z),L);
-	.abolish(agent_position(_,_,_,_));
++next_position(X,Y) <-
+	removeNextPosition;
 	.wait(50);
-	?weight(Weight);
-	?next_position(MyXcoord,MyYcoord);
-	movement.calculateNextMove(L,position("",MyXcoord,MyYcoord,Weight),Xcoord,Ycoord);
-	!moveTo(Xcoord,Ycoord);
-	?alpha(Alpha);
-	?beta(Beta);
-	getNextPosition(Alpha,Beta,nest);
-	.wait(50);
-	!sendNextPosition.
+	!moveTo(X,Y);
+	!moveItem.
 
 +onItem: not carrying <- 
 	itemInNeighborhood;

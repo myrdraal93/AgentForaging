@@ -15,38 +15,26 @@ public class ForagingModel1 extends ForagingModel{
 		super(flag);
 	}
 	
-	public void updatePheromone(int agent,boolean searchFood){
-		/*synchronized(*/lock.lock();//){
-			Location position;
-			
-			position=getAgentPosition(agent);
-			//synchronized(lockAgent){
-				//position=getAgPos(agent);
-			//}
-			
-			if(searchFood){
-				if(tauToNest[position.x][position.y]+pheromone<10000){
-					tauToNest[position.x][position.y]+=pheromone;
-				}else{
-					tauToNest[position.x][position.y]=10000;
-				}
+	public synchronized void updatePheromone(int agent,boolean searchFood){
+		Location position=getAgPos(agent);
+		
+		if(searchFood){
+			if(tauToNest[position.x][position.y]+pheromone<10000){
+				tauToNest[position.x][position.y]+=pheromone;
 			}else{
-				if(tauToFood[position.x][position.y]+pheromone<10000){
-					tauToFood[position.x][position.y]+=pheromone;
-				}else{
-					tauToFood[position.x][position.y]=10000;
-				}
+				tauToNest[position.x][position.y]=10000;
 			}
-			lock.unlock();
-		//}
+		}else{
+			if(tauToFood[position.x][position.y]+pheromone<10000){
+				tauToFood[position.x][position.y]+=pheromone;
+			}else{
+				tauToFood[position.x][position.y]=10000;
+			}
+		}
 	}
 	
-	public Location getNextPosition(double alpha,double beta,boolean searchFood,int ant){
-		Location position;
-		position=getAgentPosition(ant);
-		//synchronized(lockAgent){
-			//position=getAgPos(ant);
-		//}
+	public synchronized Location getNextPosition(double alpha,double beta,boolean searchFood,int agent){
+		Location position=getAgPos(agent);
 		Location location=montecarlo(calculateGrade(position.x,position.y,alpha,beta,searchFood));
 		return location;
 	}
@@ -58,10 +46,7 @@ public class ForagingModel1 extends ForagingModel{
 		double eta[][]=searchFood?etaToFood:etaToNest;
 		double tau[][];
 		
-		/*synchronized(*/lock.lock();//){
-			tau=searchFood?tauToFood:tauToNest;
-			lock.unlock();
-		//}
+		tau=searchFood?tauToFood:tauToNest;
 		
 		Location location;
 		
@@ -119,41 +104,27 @@ public class ForagingModel1 extends ForagingModel{
 	
 	protected Pair<Double,Location> evaluatePosition(Location location,double [][]eta,double [][]tau,double alpha,double beta){
 		
-		if(antInWallArea(location)){
+		if(agentInWallArea(location)){
 			return new Pair<>(0.0,location);
 		}
 		
-		lock.lock();
-		
-		double value=Math.pow(eta[location.x][location.y],beta)*
-				Math.pow(tau[location.x][location.y],alpha);
-		
-		lock.unlock();
-		
-		return new Pair<>(value,location);
-		
+		return new Pair<>(Math.pow(eta[location.x][location.y],beta)*
+				Math.pow(tau[location.x][location.y],alpha),location);
 	}
 	
 	
-	protected void evaporatePheromone(){
-		/*synchronized(*/lock.lock();//){
-			for(int column=0;column<SIZE;column++){
-				for(int row=0;row<SIZE;row++){
-					tauToFood[column][row]*=rho;
-					tauToNest[column][row]*=rho;
-				}
+	protected synchronized void evaporatePheromone(){
+		for(int column=0;column<SIZE;column++){
+			for(int row=0;row<SIZE;row++){
+				tauToFood[column][row]*=rho;
+				tauToNest[column][row]*=rho;
 			}
-			
-			lock.unlock();
-		//}
+		}
 		
-		/*synchronized(*/lockFood.lock();//){
-			IntStream.range(0,item4824.size()).forEach(i->item4824.get(i).evaporatePheromone());
-			IntStream.range(0,item4825.size()).forEach(i->item4825.get(i).evaporatePheromone());
-			IntStream.range(0,item4924.size()).forEach(i->item4924.get(i).evaporatePheromone());
-			IntStream.range(0,item4925.size()).forEach(i->item4925.get(i).evaporatePheromone());
-			lockFood.unlock();
-		//}
+		IntStream.range(0,item4824.size()).forEach(i->item4824.get(i).evaporatePheromone());
+		IntStream.range(0,item4825.size()).forEach(i->item4825.get(i).evaporatePheromone());
+		IntStream.range(0,item4924.size()).forEach(i->item4924.get(i).evaporatePheromone());
+		IntStream.range(0,item4925.size()).forEach(i->item4925.get(i).evaporatePheromone());
 	}
 	
 	protected void initializeACO(){

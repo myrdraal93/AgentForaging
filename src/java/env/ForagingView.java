@@ -34,7 +34,7 @@ public class ForagingView extends GridWorldView{
     @Override
     public void drawAgent(final Graphics g, final int x, final int y, Color c,
             final int id) {
-        if (id!=-1 && !model.antInNest(id) && !model.antInFoodArea(id)) {
+        if (id!=-1 && !model.agentInNest(id) && !model.agentInFoodArea(id)) {
         	c=model.getCooperative(id)?Color.ORANGE:model.carryingFood(id)?Color.BLUE:Color.GREEN;
            	super.drawAgent(g, x, y, c, -1);
         }
