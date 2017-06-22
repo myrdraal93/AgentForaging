@@ -18,6 +18,10 @@ step(0).
 +!initialize <-
 	parameters.randomAlphaBeta(Alpha,Beta);
 	.random(X);
+	//.random(K1);
+	//.random(K2);
+	+k1(/*K1*8*/4);
+	+k2(/*K2*8*/4);
 	+weight(X*5);
 	+alpha(Alpha);
 	+beta(Beta);
@@ -45,9 +49,9 @@ step(0).
 	.min([1,P+(T+1)*0.2],Y);
 	-+clustering(Y).
 
--!pickUpItemNest(Result).
+-!pickUpItemNest(_).
 
-+!dropItemNest(Item): math.pow(Item/(4+Item),2,Result) & .random(X) & Result>=X <-
++!dropItemNest(Item): k2(K2) & math.pow(Item/(K2+Item),2,Result) & .random(X) & Result>=X <-
 	dropItemNest;
 	-carrying.
 	
@@ -178,5 +182,6 @@ step(0).
 +onItem: not carrying <- 
 	itemInNeighborhood;
 	?item(Item);
-	math.pow(4/(4+Item),2,Result);
+	?k1(K1);
+	math.pow(K1/(K1+Item),2,Result);
 	!pickUpItemNest(Result).

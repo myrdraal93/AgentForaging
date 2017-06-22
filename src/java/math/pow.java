@@ -16,9 +16,8 @@ public class pow extends DefaultInternalAction {
     @Override
     public Object execute(final TransitionSystem ts, final Unifier un,
             final Term[] args) throws Exception {
-    	
-    	
-    	double value=Double.parseDouble(args[0].toString());
+   
+    	float value=Float.parseFloat(args[0].toString());
     	int pow=Integer.parseInt(args[1].toString());
     	
     	un.unifies(args[2],new NumberTermImpl(Math.pow(value,pow)));

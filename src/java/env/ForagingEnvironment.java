@@ -34,12 +34,12 @@ public class ForagingEnvironment extends Environment {
         if ((args.length == 2) && args[0].equals("gui")) {
         	value=Integer.parseInt(args[1]);
         	
-        	if(value<=2){
-        		model=new ForagingModel1(value%2==0?false:true);
-        	}else if(value>=5){
-        		model=new ForagingModel5(value%2==0?false:true);
+        	if(value<=3){
+        		model=new ForagingModel1(value%3);
+        	}else if(value>=7){
+        		model=new ForagingModel5(value%3);
         	}else{
-        		model=new ForagingModel3(value%2==0?false:true);
+        		model=new ForagingModel3(value%3);
         	}
         	
             this.model.setView(new ForagingView(this.model));
@@ -56,11 +56,11 @@ public class ForagingEnvironment extends Environment {
         if(functor.equals(ForagingEnvironment.MOVE_TO_NEXT_POSITION)) {
         	Location position=null;
         	
-        	if(value<=2){
+        	if(value<=3){
         		position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
     					Double.parseDouble(action.getTerm(1).toString()),
     					action.getTerm(2).equals(new LiteralImpl("food")),agent);
-        	}else if(value>=5){
+        	}else if(value>=7){
         		position=((ForagingModel5)model).
     					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
         	}else{
@@ -93,10 +93,10 @@ public class ForagingEnvironment extends Environment {
             return true;
         }else if(functor.equals(ForagingEnvironment.RELEASE_PHEROMONE)){
         	
-        	if(value<=2){
+        	if(value<=3){
         		((ForagingModel1)model).updatePheromone(
      					agent,action.getTerm(0).equals(new LiteralImpl("food")));
-        	}else if(value>=5){
+        	}else if(value>=7){
         		((ForagingModel5)model).updatePheromone(
     					agent,action.getTerm(0).equals(new LiteralImpl("food")));
         	}else{
@@ -198,12 +198,12 @@ public class ForagingEnvironment extends Environment {
         		Location position=null;
             	double force=0;
             	
-            	if(value<=2){
+            	if(value<=3){
             		position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
         					Double.parseDouble(action.getTerm(1).toString()),
         					action.getTerm(2).equals(new LiteralImpl("food")),agent);
             		force=Double.parseDouble(action.getTerm(3).toString());
-            	}else if(value>=5){
+            	}else if(value>=7){
             		position=((ForagingModel5)model).
         					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
             		force=Double.parseDouble(action.getTerm(1).toString());
