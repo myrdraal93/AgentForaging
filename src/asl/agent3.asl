@@ -5,7 +5,7 @@ fail_clustering(0).
 fail(0).
 leave(1).
 clustering(1).
-search(food).
+search(item).
 step(0).
 /* Initial beliefs and rules */
 
@@ -17,13 +17,18 @@ step(0).
 
 +!initialize <-
 	.random(X);
+	//.random(K1);
+	//.random(K2);
+	+k1(/*K1**/4);
+	+k2(/*K2**/4);
 	+weight(X*5);
 	!search.
 	
-+!search: (not nest & not food) | (nest & search(food)) | (food & search(nest)) <-
++!search: (not nest & not item) | (nest & search(item)) | (item & search(nest)) <-
 	?search(T);
+	?position(_,_,P);
 	releasePheromone(T);
-	moveToNextPosition(T);
+	moveToNextPosition(T,P);
 	.wait(50);
 	!search.
 
@@ -42,7 +47,7 @@ step(0).
 
 -!pickUpItemNest(Result).
 
-+!dropItemNest(Item): math.pow(Item/(4+Item),2,Result) & .random(X) & Result>=X <-
++!dropItemNest(Item): k2(K2) & math.pow(Item/(K2+Item),2,Result) & .random(X) & Result>=X<-
 	dropItemNest;
 	-carrying.
 	
@@ -64,8 +69,8 @@ step(0).
 	!walkIntoNest.
 
 +!walkIntoNest: step(C) & C>=100 <-
-	?position(X,Y);
-	moveTo(X,Y);
+	?position(X,Y,Z);
+	moveTo(X,Y,Z);
 	?item_moved;
 	-item_moved;
 	!evaluate.
@@ -75,14 +80,14 @@ step(0).
 	-+fail_clustering(X+1);
 	-+success_clustering(0);
 	?clustering(P);
-	.max([0.3,P-(X+1)*0.1],Y);
+	.max([0.3,P-(X+1)*0.2],Y);
 	-+clustering(Y);
 	!evaluate.
 
 
 +!evaluate: leave(P) & .random(N) & P>=N <-
 	.wait(1000);
-	-+search(food);
+	-+search(item);
 	!search.
 
 -!evaluate <-
@@ -97,40 +102,53 @@ step(0).
 -!evaluateNest <-
 	!evaluate.
 		
-+!pickUpFood <-
++!pickUpItem <-
+	?position(XCoord,YCoord,T);
+	//orientation.invert(T,O);
+	moveTo(XCoord,YCoord,/*O*/"E");
 	?weight(W);
-	pickUpFood(W);
+	pickUpItem(W);
 	+carrying;
 	-+search(nest).
 	
--!pickUpFood: not heavy & not ready<-
+-!pickUpItem: not heavy & not ready<-
 	-+search(nest).
 	
--!pickUpFood<- .drop_intention(search).	
+-!pickUpItem<- .drop_intention(search).	
 
 +!releasePheromoneItem: not ready <-
 	releasePheromoneItem;
-	releasePheromone(food);
+	releasePheromone(item);
 	.wait(2000);
 	!releasePheromoneItem.
 	
 -!releasePheromoneItem.
 	
-+!moveTo(X,Y) : X==-1 & Y==-1 & not nest<- 
++!moveTo(X,Y,_) : X==-1 & Y==-1 & not nest<- 
 	releasePheromone(nest).
 	
-+!moveTo(X,Y): not (X==-1) & not (Y==-1) & not nest<-
-	moveTo(X,Y);
++!moveTo(X,Y,Z): not (X==-1) & not (Y==-1) & not nest<-
+	moveTo(X,Y,Z);
 	releasePheromone(nest).
 
--!moveTo(_,_).
+-!moveTo(_,_,_).
 
-+food: search(food) <-
-	!pickUpFood.
++!moveItem(O) <-
+	?weight(W);
+	moveItem(nest,W,O).
+	
+/*-!moveItem(O) <-
+	?weight(W);
+	moveItem(nest,W,O).*/
+
++item: search(item) <-
+	!pickUpItem.
 
 +nest: carrying & search(nest)<-
+	?position(XCoord,YCoord,_);
+	moveTo(XCoord,YCoord,"O");
 	-carrying;
-	dropFood;
+	dropItem;
 	?success(X);
 	-+success(X+1);
 	-+fail(0);
@@ -140,6 +158,8 @@ step(0).
 	!evaluate.
 		
 +nest: not carrying & search(nest)<-
+	?position(XCoord,YCoord,_);
+	moveTo(XCoord,YCoord,"O");
 	?fail(X);
 	-+fail(X+1);
 	-+success(0);
@@ -155,19 +175,19 @@ step(0).
 	removePerceptCooperativeTransport;
 	-+search(nest);
 	+carrying;
-	?weight(W);
-	moveItem(nest,W);
+	?position(_,_,O);
+	!moveItem(O);
 	.wait(50).
 
-+next_position(X,Y) <-
++next_position(X,Y,Z) <-
 	removeNextPosition; 
 	.wait(50);
-	!moveTo(X,Y);
-	?weight(W);
-	moveItem(nest,W).
+	!moveTo(X,Y,Z);
+	!moveItem(Z).
 
 +onItem: not carrying <- 
 	itemInNeighborhood;
 	?item(Item);
-	math.pow(4/(4+Item),2,Result);
+	?k1(K1);
+	math.pow(K1/(K1+Item),2,Result);
 	!pickUpItemNest(Result).

@@ -25,255 +25,115 @@ public class ForagingModel3 extends ForagingModel{
 		}
 	}
 	
-	public synchronized Location getNextPosition(double alpha,double beta,boolean searchFood,int agent){
+	public synchronized Pair<Location,String> getNextPosition(double alpha,double beta,boolean searchFood,int agent,String from){
 		Location position=getAgPos(agent);
-		return montecarlo(calculateGrade(position.x,position.y,alpha,beta,searchFood));
+		return montecarlo(calculateGrade(position.x,position.y,alpha,beta,searchFood,from));
 	}
 	
 	
-	protected List<Pair<Double,Location>> calculateGrade(int x, int y,double alpha,double beta,boolean searchFood){
-		ArrayList<Pair<Double,Location>> val=new ArrayList<>();
-		
+	protected List<Pair<Double,Pair<Location,String>>> calculateGrade(int x, int y,double alpha,double beta,boolean searchFood,String from){
+		ArrayList<Pair<Double,Pair<Location,String>>> val=new ArrayList<>();
 		double eta[][]=searchFood?etaToFood:etaToNest;
-		Location location;
 		
 		if(value>=1){
 			if(!searchFood || !flag){
-				if((x-1)>=0){
-					location=new Location(x-1,y);
-					val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
-					
-					if((y-1)>=0){
-						location=new Location(x-1,y-1);
-						val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
-						
-					}
-					
-					if((y+1)<SIZE){
-						location=new Location(x-1,y+1);
-						val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
-					}
-					
-				}
+				addLocation(x-1,y,val,"\"\"",false,eta,alpha,beta);
+				addLocation(x-1,y-1,val,"\"\"",false,eta,alpha,beta);
+				addLocation(x-1,y+1,val,"\"\"",false,eta,alpha,beta);
 			}
 			
-			if((y-1)>=0){
-				location=new Location(x,y-1);
-				val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
-				
-			}
-			
-			if((y+1)<SIZE){
-				location=new Location(x,y+1);
-				val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
-			}
+			addLocation(x,y-1,val,"\"\"",false,eta,alpha,beta);
+			addLocation(x,y+1,val,"\"\"",false,eta,alpha,beta);
 			
 			if(searchFood || !flag){
-				if((x+1)<SIZE){
-					location=new Location(x+1,y);
-					val.add(evaluatePosition(location, eta,alpha,beta,searchFood));
-					
-					if((y-1)>=0){
-						location=new Location(x+1,y-1);
-						val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
-						
-					}
-					
-					if((y+1)<SIZE){
-						location=new Location(x+1,y+1);
-						val.add(evaluatePosition(location, eta,alpha, beta,searchFood));
-					}
-					
-				}
-			}
-		}else if(value==0){
-			
-			Pair<Double,Location> tmp=null;
-			
-			if(searchFood){
-				if((x+1)<SIZE){
-					location=new Location(x+1,y);
-					tmp=evaluatePosition(location, eta,alpha, beta,true);
-					
-					if(tmp.getFirst()>0 && getAgAtPos(location)<10){
-						val.add(tmp);
-					}
-					
-					if((y-1)>=0){
-						location=new Location(x+1,y-1);
-						tmp=evaluatePosition(location, eta,alpha, beta,true);
-						
-						if(tmp.getFirst()>0 && getAgAtPos(location)<10){
-							val.add(tmp);
-						}
-					}
-					
-					if((y+1)<SIZE){
-						location=new Location(x+1,y+1);
-						tmp=evaluatePosition(location, eta,alpha, beta,true);
-						
-						if(tmp.getFirst()>0 && getAgAtPos(location)<10){
-							val.add(tmp);
-						}
-					}
-					
-					if(val.size()==0){
-						
-						if((x-1)>=0){
-							location=new Location(x-1,y);
-							val.add(evaluatePosition(location, eta,alpha, beta,true));
-							
-							if((y-1)>=0){
-								location=new Location(x-1,y-1);
-								val.add(evaluatePosition(location, eta,alpha, beta,true));
-								
-							}
-							
-							if((y+1)<SIZE){
-								location=new Location(x-1,y+1);
-								val.add(evaluatePosition(location, eta,alpha, beta,true));
-							}
-							
-						}
-						
-						if((y-1)>=0){
-							location=new Location(x,y-1);
-							val.add(evaluatePosition(location, eta,alpha, beta,true));
-						}
-						
-						if((y+1)<SIZE){
-							location=new Location(x,y+1);
-							val.add(evaluatePosition(location, eta,alpha, beta,true));
-						}	
-					}
-					
-				}else{
-					if((x-1)>=0){
-						location=new Location(x-1,y);
-						val.add(evaluatePosition(location, eta,alpha, beta,true));
-						
-						if((y-1)>=0){
-							location=new Location(x-1,y-1);
-							val.add(evaluatePosition(location, eta,alpha, beta,true));
-							
-						}
-						
-						if((y+1)<SIZE){
-							location=new Location(x-1,y+1);
-							val.add(evaluatePosition(location, eta,alpha, beta,true));
-						}
-						
-					}
-					
-					if((y-1)>=0){
-						location=new Location(x,y-1);
-						val.add(evaluatePosition(location, eta,alpha, beta,true));
-					}
-					
-					if((y+1)<SIZE){
-						location=new Location(x,y+1);
-						val.add(evaluatePosition(location, eta,alpha, beta,true));
-					}
-					
-				}
-			}else{
-				if((x-1)>=0){
-					location=new Location(x-1,y);
-					
-					tmp=evaluatePosition(location, eta,alpha, beta,false);
-					
-					if(tmp.getFirst()>0 && getAgAtPos(location)<10){
-						val.add(tmp);
-					}
-					
-					if((y-1)>=0){
-						location=new Location(x-1,y-1);
-						tmp=evaluatePosition(location, eta,alpha, beta,false);
-						
-						if(tmp.getFirst()>0 && getAgAtPos(location)<10){
-							val.add(tmp);
-						}
-					}
-					
-					if((y+1)<SIZE){
-						location=new Location(x-1,y+1);
-						tmp=evaluatePosition(location, eta,alpha, beta,false);
-						
-						if(tmp.getFirst()>0 && getAgAtPos(location)<10){
-							val.add(tmp);
-						}
-					}
-					
-					if(val.size()==0){
-						
-						if((y-1)>=0){
-							location=new Location(x,y-1);
-							val.add(evaluatePosition(location, eta,alpha, beta,false));
-						}
-						
-						if((y+1)<SIZE){
-							location=new Location(x,y+1);
-							val.add(evaluatePosition(location, eta,alpha, beta,false));
-						}
-						
-						if((x+1)<SIZE){
-							location=new Location(x+1,y);
-							val.add(evaluatePosition(location, eta,alpha, beta,false));
-							
-							if((y-1)>=0){
-								location=new Location(x+1,y-1);
-								val.add(evaluatePosition(location, eta,alpha, beta,false));
-								
-							}
-							
-							if((y+1)<SIZE){
-								location=new Location(x+1,y+1);
-								val.add(evaluatePosition(location, eta,alpha, beta,false));
-							}
-							
-						}
-						
-					}
-					
-				}else{
-					
-					if((y-1)>=0){
-						location=new Location(x,y-1);
-						val.add(evaluatePosition(location, eta,alpha, beta,false));
-					}
-					
-					if((y+1)<SIZE){
-						location=new Location(x,y+1);
-						val.add(evaluatePosition(location, eta,alpha, beta,false));
-					}
-					
-					if((x+1)<SIZE){
-						location=new Location(x+1,y);
-						val.add(evaluatePosition(location, eta,alpha, beta,false));
-						
-						if((y-1)>=0){
-							location=new Location(x+1,y-1);
-							val.add(evaluatePosition(location, eta,alpha, beta,false));
-							
-						}
-						
-						if((y+1)<SIZE){
-							location=new Location(x+1,y+1);
-							val.add(evaluatePosition(location, eta,alpha, beta,false));
-						}
-						
-					}
-				}
-			}
+				addLocation(x+1,y,val,"\"\"",false,eta,alpha,beta);
+				addLocation(x+1,y-1,val,"\"\"",false,eta,alpha,beta);
+				addLocation(x+1,y+1,val,"\"\"",false,eta,alpha,beta);
+			}	
 		}else{
-			
+			if(from.equals("\"O\"")){
+				addLocation(x+1,y,val,"\"O\"",true,eta,alpha,beta);
+				addLocation(x+1,y-1,val,"\"O\"",true,eta,alpha,beta);
+				addLocation(x+1,y+1,val,"\"O\"",true,eta,alpha,beta);
+				
+				if(val.size()==0){
+					addLocation(x,y-1,val,"\"S\"",true,eta,alpha,beta);
+					addLocation(x,y+1,val,"\"N\"",true,eta,alpha,beta);
+				}
+				
+				if(val.size()==0){
+					addLocation(x-1,y,val,"\"E\"",true,eta,alpha,beta);
+					addLocation(x-1,y-1,val,"\"E\"",true,eta,alpha,beta);
+					addLocation(x-1,y+1,val,"\"E\"",true,eta,alpha,beta);
+				}
+			}else if(from.equals("\"E\"")){
+				addLocation(x-1,y,val,"\"E\"",true,eta,alpha,beta);
+				addLocation(x-1,y-1,val,"\"E\"",true,eta,alpha,beta);
+				addLocation(x-1,y+1,val,"\"E\"",true,eta,alpha,beta);
+				
+				if(val.size()==0){
+					addLocation(x,y-1,val,"\"S\"",true,eta,alpha,beta);
+					addLocation(x,y+1,val,"\"N\"",true,eta,alpha,beta);	
+				}
+				
+				if(val.size()==0){
+					addLocation(x+1,y,val,"\"O\"",true,eta,alpha,beta);
+					addLocation(x+1,y-1,val,"\"O\"",true,eta,alpha,beta);	
+					addLocation(x+1,y+1,val,"\"O\"",true,eta,alpha,beta);
+				}
+			}else if(from.equals("\"N\"")){
+				addLocation(x,y+1,val,"\"N\"",true,eta,alpha,beta);
+				addLocation(x-1,y+1,val,"\"N\"",true,eta,alpha,beta);
+				addLocation(x+1,y+1,val,"\"N\"",true,eta,alpha,beta);
+					
+				if(val.size()==0){
+					addLocation(x+1,y,val,"\"O\"",true,eta,alpha,beta);
+					addLocation(x-1,y,val,"\"E\"",true,eta,alpha,beta);	
+				}
+				
+				if(val.size()==0){
+					addLocation(x,y-1,val,"\"S\"",true,eta,alpha,beta);
+					addLocation(x+1,y-1,val,"\"S\"",true,eta,alpha,beta);
+					addLocation(x-1,y-1,val,"\"S\"",true,eta,alpha,beta);
+				}
+				
+			}else if(from.equals("\"S\"")){
+				addLocation(x,y-1,val,"\"S\"",true,eta,alpha,beta);
+				addLocation(x-1,y-1,val,"\"S\"",true,eta,alpha,beta);
+				addLocation(x+1,y-1,val,"\"S\"",true,eta,alpha,beta);
+				
+				if(val.size()==0){
+					addLocation(x-1,y,val,"\"E\"",true,eta,alpha,beta);
+					addLocation(x+1,y,val,"\"O\"",true,eta,alpha,beta);
+				}
+				
+				if(val.size()==0){
+					addLocation(x,y+1,val,"\"N\"",true,eta,alpha,beta);
+					addLocation(x-1,y+1,val,"\"N\"",true,eta,alpha,beta);
+					addLocation(x+1,y+1,val,"\"N\"",true,eta,alpha,beta);
+				}
+			}
 		}
-		
 	
 		return val;
 	}
 	
-	protected Pair<Double,Location> evaluatePosition(Location location,double [][]eta,double alpha,double beta,boolean searchFood){
+	private void addLocation(int x,int y,List<Pair<Double,Pair<Location,String>>> val,String direction,boolean flag,double [][] eta,double alpha,double beta){
+		if(x>=0&&x<SIZE&&y>=0&&y<SIZE){
+			Location location=new Location(x,y);
+			Pair<Double,Location> tmp=evaluatePosition(location, eta,alpha, beta);
+		
+			if(flag){
+				if(tmp.getFirst()>0){
+					val.add(new Pair<>(tmp.getFirst(),new Pair<>(tmp.getSecond(),direction)));
+				}
+			}else{
+				val.add(new Pair<>(tmp.getFirst(),new Pair<>(tmp.getSecond(),direction)));
+			}
+		}
+	}
+	
+	protected Pair<Double,Location> evaluatePosition(Location location,double [][]eta,double alpha,double beta){
 		
 		if(agentInWallArea(location)){
 			return new Pair<>(0.0,location);
@@ -281,12 +141,8 @@ public class ForagingModel3 extends ForagingModel{
 
 		double value;
 		
-		//if(searchFood){
-			value=Math.pow(eta[location.x][location.y],beta)*
-				Math.pow(tau[location.x][location.y],alpha);
-		/*}else{
-			value=eta[location.x][location.y];
-		}*/
+		value=Math.pow(eta[location.x][location.y],beta)*
+			Math.pow((tau[location.x][location.y]+1),alpha);
 		
 		return new Pair<>(value,location);
 	}
@@ -344,8 +200,7 @@ public class ForagingModel3 extends ForagingModel{
 	            for (int column = 0; column < SIZE; column++)
 	            {
 	                for (int row = 0; row < SIZE; row++)
-	                {
-	                	tau[column][row]=10;
+	                {	
 	                	etaToFood[column][row]+= maxDistanceToFood - distanceToFood[column][row];
 	                	etaToNest[column][row]+= maxDistanceToNest - distanceToNest[column][row];
 	                }
@@ -354,19 +209,4 @@ public class ForagingModel3 extends ForagingModel{
 		}
 	}
 	
-	protected synchronized void evaporatePheromoneInArea(int column,int rowStart,int rowEnd){
-		/*for(int i=column-3;i<=column+3;i++){
-			for(int j=rowStart;j<=rowEnd;j++){
-				if(i==column-3||i==column+3){
-					tau[i][j]=PHEROMONE+40;
-				}else if(i==column-2||i==column+2){
-					tau[i][j]=PHEROMONE+20;
-				}else if(i==column-1||i==column+1){
-					tau[i][j]=PHEROMONE;
-				}
-				
-				tau[i][j]=PHEROMONE;
-			}
-		}*/
-	}
 }

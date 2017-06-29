@@ -15,9 +15,9 @@ public class ForagingEnvironment extends Environment {
     private int value;
     private static final String MOVE_TO_NEXT_POSITION = "moveToNextPosition";
     private static final String RELEASE_PHEROMONE = "releasePheromone";
-    private static final String PICK_UP_FOOD = "pickUpFood";
+    private static final String PICK_UP_ITEM = "pickUpItem";
     private static final String PICK_ITEM_NEST = "pickUpItemNest";
-    private static final String DROP_FOOD = "dropFood";
+    private static final String DROP_ITEM = "dropItem";
     private static final String RELEASE_PHEROMONE_ITEM = "releasePheromoneItem";
     private static final String MOVE_ITEM="moveItem";
     private static final String MOVE_TO="moveTo";
@@ -54,32 +54,31 @@ public class ForagingEnvironment extends Environment {
         int agent=Integer.parseInt(agName.substring(5))-1;
         
         if(functor.equals(ForagingEnvironment.MOVE_TO_NEXT_POSITION)) {
-        	Location position=null;
-        	
+        	Pair<Location,String> position=null;
         	if(value<=3){
         		position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
     					Double.parseDouble(action.getTerm(1).toString()),
-    					action.getTerm(2).equals(new LiteralImpl("food")),agent);
+    					action.getTerm(2).equals(new LiteralImpl("item")),agent,action.getTerm(3).toString());
         	}else if(value>=7){
         		position=((ForagingModel5)model).
-    					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
+    					getNextPosition(action.getTerm(0).equals(new LiteralImpl("item")),agent,action.getTerm(1).toString());
         	}else{
         		position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
     					Double.parseDouble(action.getTerm(1).toString()),
-    					action.getTerm(2).equals(new LiteralImpl("food")),agent);
+    					action.getTerm(2).equals(new LiteralImpl("item")),agent,action.getTerm(3).toString());
         	}
         	
-            model.moveTo(agent,position);
+            model.moveTo(agent,position.getFirst());
             
-            removePerceptsByUnif(agName,Literal.parseLiteral("position(X,Y)"));
-            addPercept(agName,Literal.parseLiteral("position("+position.x+","+position.y+")"));
+            removePerceptsByUnif(agName,Literal.parseLiteral("position(X,Y,Z)"));
+            addPercept(agName,Literal.parseLiteral("position("+position.getFirst().x+","+position.getFirst().y+","+position.getSecond()+")"));
             
-            if(model.agentInFoodArea(agent)){
-            	if(!containsPercept(agName, Literal.parseLiteral("food"))){
-            		addPercept(agName,Literal.parseLiteral("food"));
+            if(model.agentInItemArea(agent)){
+            	if(!containsPercept(agName, Literal.parseLiteral("item"))){
+            		addPercept(agName,Literal.parseLiteral("item"));
             	}
-            }else if(containsPercept(agName, Literal.parseLiteral("food"))){
-            	removePercept(agName,Literal.parseLiteral("food"));
+            }else if(containsPercept(agName, Literal.parseLiteral("item"))){
+            	removePercept(agName,Literal.parseLiteral("item"));
             }
             
             if(model.agentInNest(agent)){
@@ -95,17 +94,17 @@ public class ForagingEnvironment extends Environment {
         	
         	if(value<=3){
         		((ForagingModel1)model).updatePheromone(
-     					agent,action.getTerm(0).equals(new LiteralImpl("food")));
+     					agent,action.getTerm(0).equals(new LiteralImpl("item")));
         	}else if(value>=7){
         		((ForagingModel5)model).updatePheromone(
-    					agent,action.getTerm(0).equals(new LiteralImpl("food")));
+    					agent,action.getTerm(0).equals(new LiteralImpl("item")));
         	}else{
         		((ForagingModel3)model).updatePheromone(agent);
         	}
         	
         	return true;
-        }else if(functor.equals(PICK_UP_FOOD)){
-        	Pair<Integer,Item> result=model.pickUpFood(agent,Double.parseDouble(action.getTerm(0).toString()));
+        }else if(functor.equals(PICK_UP_ITEM)){
+        	Pair<Integer,Item> result=model.pickUpItem(agent,Double.parseDouble(action.getTerm(0).toString()));
 
         	if(result.getFirst()==2){
         		addPercept(agName,Literal.parseLiteral("heavy"));
@@ -130,8 +129,8 @@ public class ForagingEnvironment extends Environment {
         	}
         	
         	return result.getFirst()==1?true:false;
-        }else if(functor.equals(DROP_FOOD)){
-        	model.dropFood(agent);
+        }else if(functor.equals(DROP_ITEM)){
+        	model.dropItem(agent);
         	return true;
         }else if(functor.equals(RELEASE_PHEROMONE_ITEM)){
         	model.releasePheromoneItem(agent);
@@ -141,15 +140,15 @@ public class ForagingEnvironment extends Environment {
             		Integer.parseInt(action.getTerm(1).toString()));
         	model.moveTo(agent,position);
             
-            removePerceptsByUnif(agName,Literal.parseLiteral("position(X,Y)"));
-            addPercept(agName,Literal.parseLiteral("position("+position.x+","+position.y+")"));
+            removePerceptsByUnif(agName,Literal.parseLiteral("position(X,Y,Z)"));
+            addPercept(agName,Literal.parseLiteral("position("+position.x+","+position.y+","+action.getTerm(2).toString()+")"));
             
-            if(model.agentInFoodArea(agent)){
-            	if(!containsPercept(agName, Literal.parseLiteral("food"))){
-            		addPercept(agName,Literal.parseLiteral("food"));
+            if(model.agentInItemArea(agent)){
+            	if(!containsPercept(agName, Literal.parseLiteral("item"))){
+            		addPercept(agName,Literal.parseLiteral("item"));
             	}
-            }else if(containsPercept(agName, Literal.parseLiteral("food"))){
-            	removePercept(agName,Literal.parseLiteral("food"));
+            }else if(containsPercept(agName, Literal.parseLiteral("item"))){
+            	removePercept(agName,Literal.parseLiteral("item"));
             }
             
             if(model.agentInNest(agent)){
@@ -165,7 +164,7 @@ public class ForagingEnvironment extends Environment {
         	removePerceptsByUnif(agName,Literal.parseLiteral("ready"));
         	return true;
         }else if(functor.equals(REMOVE_NEXT_POSITION)){
-        	removePerceptsByUnif(agName,Literal.parseLiteral("next_position(_,_)"));
+        	removePerceptsByUnif(agName,Literal.parseLiteral("next_position(_,_,_)"));
         	return true;
         }else if(functor.equals(MOVE_INTO_NEST)){
         	model.moveIntoNest(agent);
@@ -195,45 +194,45 @@ public class ForagingEnvironment extends Environment {
         	return model.dropItemNest(agent);
         }else if(functor.equals(MOVE_ITEM)){
         	if(!model.agentInNest(agent)){
-        		Location position=null;
+        		Pair<Location,String> position=null;
             	double force=0;
             	
             	if(value<=3){
             		position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
         					Double.parseDouble(action.getTerm(1).toString()),
-        					action.getTerm(2).equals(new LiteralImpl("food")),agent);
+        					action.getTerm(2).equals(new LiteralImpl("item")),agent,action.getTerm(4).toString());
             		force=Double.parseDouble(action.getTerm(3).toString());
             	}else if(value>=7){
             		position=((ForagingModel5)model).
-        					getNextPosition(action.getTerm(0).equals(new LiteralImpl("food")),agent);
+        					getNextPosition(action.getTerm(0).equals(new LiteralImpl("item")),agent,action.getTerm(2).toString());
             		force=Double.parseDouble(action.getTerm(1).toString());
             	}else{
             		position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
         					Double.parseDouble(action.getTerm(1).toString()),
-        					action.getTerm(2).equals(new LiteralImpl("food")),agent);
+        					action.getTerm(2).equals(new LiteralImpl("item")),agent,action.getTerm(4).toString());
             		force=Double.parseDouble(action.getTerm(3).toString());
             	}
             	
-            	Item item=model.moveItem(agent,new Pair<Location,Double>(position,force));
+            	Item item=model.moveItem(agent,new Pair<Pair<Location,String>,Double>(position,force));
             	
             	if(item!=null){
-            		Location position2=item.getNextPosition();
+            		Pair<Location,String> position2=item.getNextPosition();
             		List<Integer> agents=item.getAgents();
             		for(int tmp:agents){
             			try{
-                			addPercept("agent"+(tmp+1),Literal.parseLiteral("next_position("+position2.x+","+position2.y+")"));
+                			addPercept("agent"+(tmp+1),Literal.parseLiteral("next_position("+position2.getFirst().x+","+position2.getFirst().y+","+position2.getSecond()+")"));
                 		}catch(Exception e){
                 			e.printStackTrace();
                 		}
             		}
             		
-            		if(model.inNestArea(position2)){
+            		if(model.inNestArea(position2.getFirst())){
             			model.removeItem(item);
             		}
             	}
         		
             }else{
-            	removePerceptsByUnif(agName,Literal.parseLiteral("next_position(X,Y)"));
+            	removePerceptsByUnif(agName,Literal.parseLiteral("next_position(X,Y,Z)"));
             }
         	
         	return true;
@@ -247,7 +246,7 @@ public class ForagingEnvironment extends Environment {
 
         for(int i=0;i<ForagingModel1.NUMBER_AGENTS;i++){
         	final Location agent = this.model.getAgPos(i);
-        	addPercept("agent"+(i+1),Literal.parseLiteral("position("+agent.x+","+agent.y+")"));
+        	addPercept("agent"+(i+1),Literal.parseLiteral("position("+agent.x+","+agent.y+",\"O\")"));
         	addPercept("agent"+(i+1),Literal.parseLiteral("nest"));
         }
     }

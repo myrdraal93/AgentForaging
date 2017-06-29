@@ -26,7 +26,7 @@ public class ForagingView extends GridWorldView{
             final int object) {
         switch (object) {
             case ForagingModel.NEST:super.drawAgent(g, x, y, Color.RED, -1);break;
-            case ForagingModel.FOOD:super.drawAgent(g, x, y, Color.YELLOW, -1);break;
+            case ForagingModel.ITEM:super.drawAgent(g, x, y, Color.YELLOW, -1);break;
             default:break;
         }
     }
@@ -34,8 +34,8 @@ public class ForagingView extends GridWorldView{
     @Override
     public void drawAgent(final Graphics g, final int x, final int y, Color c,
             final int id) {
-        if (id!=-1 && !model.agentInNest(id) && !model.agentInFoodArea(id)) {
-        	c=model.getCooperative(id)?Color.ORANGE:model.carryingFood(id)?Color.BLUE:Color.GREEN;
+        if (id!=-1 && !model.agentInNest(id) && !model.agentInItemArea(id)) {
+        	c=model.getCooperative(id)?Color.ORANGE:model.carryingItem(id)?Color.BLUE:Color.GREEN;
            	super.drawAgent(g, x, y, c, -1);
         }
     }

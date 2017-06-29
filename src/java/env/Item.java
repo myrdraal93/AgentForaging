@@ -11,7 +11,7 @@ public class Item {
 
 	private double weight;
 	private double pheromone;
-	private HashMap<Integer,ArrayList<Pair<Location,Double>>> agents;
+	private HashMap<Integer,ArrayList<Pair<Pair<Location,String>,Double>>> agents;
 	
 	public Item(double weight){
 		this.weight=weight;
@@ -35,9 +35,9 @@ public class Item {
 		pheromone*=0.7;
 	}
 	
-	public boolean addItemPosition(int agent,Pair<Location,Double> position){
+	public boolean addItemPosition(int agent,Pair<Pair<Location,String>,Double> position){
 		agents.get(agent).add(position);
-		for(ArrayList<Pair<Location,Double>>tmp:agents.values()){
+		for(ArrayList<Pair<Pair<Location,String>,Double>>tmp:agents.values()){
 			if(tmp.size()==0){
 				return false;
 			}
@@ -45,11 +45,11 @@ public class Item {
 		return true;
 	}
 	
-	public Location getNextPosition(){
-		HashMap<Location,Double> coordinate=new HashMap<>();
+	public Pair<Location,String> getNextPosition(){
+		HashMap<Pair<Location,String>,Double> coordinate=new HashMap<>();
     	
-    	for(ArrayList<Pair<Location,Double>> tmp:agents.values()){
-    		Pair<Location,Double> pair=tmp.remove(0);
+		for(ArrayList<Pair<Pair<Location,String>,Double>> tmp:agents.values()){
+    		Pair<Pair<Location,String>,Double> pair=tmp.remove(0);
     		if(coordinate.containsKey(pair.getFirst())){
     			double force=coordinate.get(pair.getFirst());
     			coordinate.put(pair.getFirst(),pair.getSecond()+force);
@@ -59,28 +59,28 @@ public class Item {
     	}
 		
 		double value=-1;
-		Location max=null;
+		Pair<Location,String> max=null;
 		Object[] set=coordinate.keySet().toArray();
 		
 		for(Object tmp : set){
 			
-			if(coordinate.get((Location)tmp)>value){
-				value=coordinate.get((Location)tmp);
-				max=(Location)tmp;
+			if(coordinate.get((Pair<Location,String>)tmp)>value){
+				value=coordinate.get((Pair<Location,String>)tmp);
+				max=(Pair<Location,String>)tmp;
 			}
 		
 		}
 		
 		for(Object tmp : set){
 			
-			if(((Location)tmp).x!=max.x||((Location)tmp).y!=max.y){
-				value-=coordinate.get((Location)tmp);
+			if(((Pair<Location,String>)tmp).getFirst().x!=max.getFirst().x||((Pair<Location,String>)tmp).getFirst().y!=max.getFirst().y){
+				value-=coordinate.get((Pair<Location,String>)tmp);
 			}
 			
 		}
 		
 		if(value==0){
-			return new Location(-1,-1);
+			return new Pair<>(new Location(-1,-1),"\"\"");
 		}
 		
 		return max;
