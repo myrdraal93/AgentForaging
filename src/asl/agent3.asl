@@ -104,8 +104,7 @@ step(0).
 		
 +!pickUpItem <-
 	?position(XCoord,YCoord,T);
-	//orientation.invert(T,O);
-	moveTo(XCoord,YCoord,/*O*/"E");
+	moveTo(XCoord,YCoord,"E");
 	?weight(W);
 	pickUpItem(W);
 	+carrying;
@@ -137,10 +136,6 @@ step(0).
 	?weight(W);
 	moveItem(nest,W,O).
 	
-/*-!moveItem(O) <-
-	?weight(W);
-	moveItem(nest,W,O).*/
-
 +item: search(item) <-
 	!pickUpItem.
 

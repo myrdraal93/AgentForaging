@@ -82,7 +82,7 @@
 	%   nell'indice
 	\addcontentsline{toc}{chapter}{Introduzione}
 
-La stigmergy, è una forma di comunicazione indiretta tra agenti, che avviene tramite modifiche nell'ambiente. Le formiche sono una tra le specie animali che sfruttano questo tipo di comunicazione.\\
+La stigmergy è una forma di comunicazione indiretta, che avviene tra agenti, tramite modifiche nell'ambiente. Le formiche sono una tra le specie animali che sfruttano questo tipo di comunicazione.\\
 Le formiche che si occupano della ricerca del cibo, una volta individuato, durante il ritorno al formicaio, rilasciano del feromone nell'ambiente; in modo da comunicare il percorso da effettuare. Le formiche tendono a seguire il percorso che presenta la maggiore concentrazione di feromone. Questa forma di comunicazione indiretta, genera il fenomeno emergente dello shortest path.\\
 Le formiche, inoltre, all'interno del formicaio, effettuano corpse clustering nelle zone in cui sono custodite le larve; in modo da proteggerle.\\
 Ispirandosi al comportamento delle formiche, si è voluto simulare, tramite MAS, il fenomeno del foraging e del corpse clustering; adottando come meccanismo di comunicazione indiretta la stigmergy. Per quanto concerne il foraging, sono state realizzate diverse metodologie. Inoltre, è stato realizzato una forma di trasporto cooperativo in caso di oggetti troppo pesanti per il singolo agente.\\
@@ -155,7 +155,7 @@ Per ogni metodologia, inoltre, sono presenti tre tipologie di movimento.\\ La pr
 La seconda tipologia, in base all'obiettivo dell'agente, consente uno spostamento in 5 possibili direzioni. Se l'agente, è alla ricerca degli oggetti, potrà spostarsi solo nelle seguenti direzioni: N, S, E, NE e SE.  Se l'agente, è di ritorno al nido, invece, potrà spostarsi nelle seguenti direzioni: N, E, O, NO e SO.\\
 Infine, la terza tipologia di movimento, è di tipo prioritario. Si valutano inizialmente le tre direzioni che si trovano dinnanzi all'agente. Se non dovesse essere possibile uno spostamento in una delle tre possibili posizioni, si valuteranno le direzioni ai lati dell'agente ed, eventualmente, le tre restanti da cui proviene (Es: se l'agente proviene da O, si considerano le direzioni NE, E e SE).\\
 L'agente, per ogni metodologia, è stato modellato in modo che non ricordi il percorso effettuato.\\
-Le tre metodologie verranno analizzate in un ambiente statico e in un ambiente dinamico.
+Le tre metodologie, verranno analizzate prima in un'arena con un solo ostacolo; successivamente, in una situazione in cui verrà aggiunto un ulteriore ostacolo durante l'esecuzione del sistema.\\
 
 \subsection{Ambiente statico}
 
@@ -344,7 +344,7 @@ In conclusione, la migliore metodologia, per riprodurre il fenomeno dell'ant-for
 \section{Trasporto cooperativo}
 
 Il trasporto cooperativo realizzato, è il risultato di un fenomeno emergente. Ogni agente determina indipendentemente la posizione successiva. Così facendo, ognuno di essi applica una forza sull'oggetto. In base alle somme delle forze applicate, prevale una direzione piuttosto che un'altra.\\
-Poiché questa forma di trasporto non prevede un'effettiva forma di coordinazione tra gli agenti, si possono verificare dei casi di deadlock. Ad esempio, nell'istante \textit{t}, l'oggetto si sposta in direzione Nord, mentre nell'istante \text{t+1}, in direzione Sud; annullando di fatto lo spostamento.\\
+Poiché questa forma di trasporto non prevede un'effettiva forma di coordinazione tra gli agenti, si possono verificare dei casi di deadlock. Ciò si verifica quando la somma delle forze risulta essere nulla.\\
 Un agente è in grado di trasportare 5 volte il suo peso. Se il peso dell'oggetto, è 5 volte superiore a quello dell'agente, quest'ultimo, mediante l'ambiente, applica un meccanismo di reclutamento. L'agente rilascia un feromone nella posizione in cui si trova; in modo da aumentare la probabilità degli altri agenti di dirigersi nella posizione in cui è richiesto aiuto. Inoltre, rilascia un altro tipo di feromone sull'oggetto; in modo da aumentare la probabilità di ricevere aiuto da parte degli altri agenti. Gli agenti, una volta giunti nell'area in cui sono presenti gli oggetti, selezionano l'oggetto da trasportare nel seguente modo: $P_i =\dfrac{\gamma_i}{\Sigma_k \gamma_k}$.\\
 Se gli agenti che giungono in aiuto, non sono in grado di trasportare l'oggetto, anch'essi rilasciano del feromone.\\
 Quando gli agenti sono in grado di trasportare l'oggetto, interrompono il reclutamento.
@@ -404,10 +404,10 @@ Il comportamento globale del sistema dipende dai seguenti parametri:\\
 	\item Costanti per valutare se spostare un oggetto
 \end{itemize}
 
-Tramite questi parametri, si può ottenere una suddivisione del lavoro bilanciata, oppure, delle situazioni estreme.\\
-Ad esempio, con un basso tempo di evaporazione (es: mezzo secondo) e con un'alta percentuale di evaporazione (circa il 90\%) il fenomeno dello shortest path, non emerge in nessuna metodologia.\\
-Mantenendo un tempo di ricarica delle risorse basso, invece, gli agenti saranno più propensi ad effettuare il recupero degli oggetti; piuttosto che ad occuparsi del corpse clustering. Si ottiene l'effetto contrario nel caso in cui il tempo di ricarica sia elevato.\\Con l'esaurimento delle risorse, invece, si arriverebbe a un punto in cui tutti gli agenti si occuperebbero del corpse clustering.\\
-La rapidità con cui si formano i cluster, dipende anche dal numero di agenti che prendono parte a questa operazione. Naturalmente, un numero elevato di agenti rende più rapida questa operazione, ma un numero troppo elevato potrebbe sortire l'effetto contrario.\\
+Tramite questi parametri si può ottenere una suddivisione del lavoro bilanciata; oppure, delle situazioni estreme.\\
+Ad esempio, con un basso tempo di evaporazione (es: mezzo secondo), e con un'alta percentuale di evaporazione (circa il 90\%), il fenomeno dello shortest path non emerge in nessuna metodologia.\\
+Mantenendo un tempo di ricarica delle risorse basso, invece, gli agenti saranno più propensi ad effettuare il recupero degli oggetti; piuttosto che ad occuparsi del corpse clustering. Si ottiene l'effetto contrario nel caso in cui il tempo di ricarica sia elevato.
+La rapidità con cui si formano i cluster, dipende anche dal numero di agenti che prendono parte a questa operazione. Naturalmente, un elevato numero di agenti rende più rapida questa operazione, ma un numero troppo elevato potrebbe sortire l'effetto contrario.\\
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%non numera l'ultima pagina sinistra
 \clearpage{\pagestyle{empty}\cleardoublepage}
@@ -415,9 +415,9 @@ La rapidità con cui si formano i cluster, dipende anche dal numero di agenti ch
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%imposta l'intestazione di pagina
 \lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
 
-I modelli realizzati per la suddivisione dei task e per il corpse clustering, per quanto siano semplici, permettono di ottenere degli ottimi risultati.\\
 Il sistema realizzato risulta essere un classico esempio di swarm intelligence. Con un sistema completamente decentralizzato e auto-organizzante, è possibile ottenere dei comportamenti collettivi.\\
-Analizzando le varie metodologie per l'ant-foraging, è emerso che, con una completa libertà di movimento, nessuna metodologia risulta essere adatta. Limitando la libertà nel determinare la posizione successiva da parte degli agenti, invece, la seconda metodologia risulta essere la più adatta. La peculiarità di questa metodologia, se utilizzata con la terza tipologia di movimento, è che non richiede alcuna conoscenza dell'ambiente. Risulta quindi essere la più adatta qualora si voglia realizzare il comportamento dell'ant-foraging in un contesto reale. Per la realizzazione di questa soluzione, in un contesto reale, gli agenti potrebbero rilasciare un gas nell'ambiente, che non sia nocivo per gli esseri viventi, e rilevarne la presenza tramite sensori. Naturalmente, si assume che i gas possano coesistere.\\
+I modelli realizzati per la suddivisione dei task e per il corpse clustering, per quanto siano semplici, permettono di ottenere degli ottimi risultati.\\
+Analizzando le varie metodologie per l'ant-foraging, è emerso che, con una completa libertà di movimento, nessuna metodologia risulta essere adatta. Limitando la libertà nel determinare la posizione successiva da parte degli agenti, invece, la seconda metodologia risulta essere la più adatta. La peculiarità di questa metodologia, se utilizzata con la terza tipologia di movimento, è che non richiede alcuna conoscenza dell'ambiente. Risulta quindi essere la più adatta qualora si voglia realizzare il comportamento dell'ant-foraging in un ambito di swarm robotics. Per la realizzazione di questa soluzione, in un contesto reale, i robot potrebbero rilasciare un gas nell'ambiente, che non sia nocivo per gli esseri viventi, e rilevarne la presenza tramite sensori. Naturalmente, si assume che i gas possano coesistere.\\
 La realizzazione dell'ant-foraging ha permesso di comprendere quanto sia fondamentale, in un sistema complesso, trovare il giusto compromesso tra robustezza e adattatività.\\
 
 	\clearpage{\pagestyle{empty}\cleardoublepage}

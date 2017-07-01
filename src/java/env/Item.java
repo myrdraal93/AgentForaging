@@ -28,7 +28,11 @@ public class Item {
 	}
 	
 	public void addPheromone(){
-		pheromone+=5;
+		if(pheromone+5<=1000){
+			pheromone+=5;
+		}else{
+			pheromone=1000;
+		}
 	}
 	
 	public void evaporatePheromone(){

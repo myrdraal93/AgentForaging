@@ -1,8 +1,6 @@
 package env;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -47,9 +45,6 @@ public abstract class ForagingModel extends GridWorldModel{
 		setAgentPosition();
 		setEnvironment();
 		
-		//SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");    
-		//System.out.println("Start time: "+sdf.format(new Date(System.currentTimeMillis())));
-		
 		new Thread(()->{
 			int i=0;
 			int count=1;
@@ -69,14 +64,13 @@ public abstract class ForagingModel extends GridWorldModel{
 				}
 				
 				
-			/*	if(count==20 && !flagNewWall){
+				if(count==20 && !flagNewWall){
 					addNewWall();
 				}else{
 					count++;
 				}
-				*/
+				
 				evaporatePheromone();
-				//System.out.println(sdf.format(new Date(System.currentTimeMillis())));
 			}
 		}).start();
 	}

@@ -35,11 +35,11 @@ public class ForagingEnvironment extends Environment {
         	value=Integer.parseInt(args[1]);
         	
         	if(value<=3){
-        		model=new ForagingModel1(value%3);
-        	}else if(value>=7){
-        		model=new ForagingModel5(value%3);
-        	}else{
         		model=new ForagingModel3(value%3);
+        	}else if(value>=7){
+        		model=new ForagingModel2(value%3);
+        	}else{
+        		model=new ForagingModel1(value%3);
         	}
         	
             this.model.setView(new ForagingView(this.model));
@@ -56,14 +56,14 @@ public class ForagingEnvironment extends Environment {
         if(functor.equals(ForagingEnvironment.MOVE_TO_NEXT_POSITION)) {
         	Pair<Location,String> position=null;
         	if(value<=3){
-        		position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+        		position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
     					Double.parseDouble(action.getTerm(1).toString()),
     					action.getTerm(2).equals(new LiteralImpl("item")),agent,action.getTerm(3).toString());
         	}else if(value>=7){
-        		position=((ForagingModel5)model).
+        		position=((ForagingModel2)model).
     					getNextPosition(action.getTerm(0).equals(new LiteralImpl("item")),agent,action.getTerm(1).toString());
         	}else{
-        		position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+        		position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
     					Double.parseDouble(action.getTerm(1).toString()),
     					action.getTerm(2).equals(new LiteralImpl("item")),agent,action.getTerm(3).toString());
         	}
@@ -93,13 +93,13 @@ public class ForagingEnvironment extends Environment {
         }else if(functor.equals(ForagingEnvironment.RELEASE_PHEROMONE)){
         	
         	if(value<=3){
-        		((ForagingModel1)model).updatePheromone(
+        		((ForagingModel3)model).updatePheromone(
      					agent,action.getTerm(0).equals(new LiteralImpl("item")));
         	}else if(value>=7){
-        		((ForagingModel5)model).updatePheromone(
+        		((ForagingModel2)model).updatePheromone(
     					agent,action.getTerm(0).equals(new LiteralImpl("item")));
         	}else{
-        		((ForagingModel3)model).updatePheromone(agent);
+        		((ForagingModel1)model).updatePheromone(agent);
         	}
         	
         	return true;
@@ -198,16 +198,16 @@ public class ForagingEnvironment extends Environment {
             	double force=0;
             	
             	if(value<=3){
-            		position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+            		position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
         					Double.parseDouble(action.getTerm(1).toString()),
         					action.getTerm(2).equals(new LiteralImpl("item")),agent,action.getTerm(4).toString());
             		force=Double.parseDouble(action.getTerm(3).toString());
             	}else if(value>=7){
-            		position=((ForagingModel5)model).
+            		position=((ForagingModel2)model).
         					getNextPosition(action.getTerm(0).equals(new LiteralImpl("item")),agent,action.getTerm(2).toString());
             		force=Double.parseDouble(action.getTerm(1).toString());
             	}else{
-            		position=((ForagingModel3)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
+            		position=((ForagingModel1)model).getNextPosition(Double.parseDouble(action.getTerm(0).toString()),
         					Double.parseDouble(action.getTerm(1).toString()),
         					action.getTerm(2).equals(new LiteralImpl("item")),agent,action.getTerm(4).toString());
             		force=Double.parseDouble(action.getTerm(3).toString());
@@ -244,7 +244,7 @@ public class ForagingEnvironment extends Environment {
     private void initializePercepts() {
         clearAllPercepts();
 
-        for(int i=0;i<ForagingModel1.NUMBER_AGENTS;i++){
+        for(int i=0;i<ForagingModel3.NUMBER_AGENTS;i++){
         	final Location agent = this.model.getAgPos(i);
         	addPercept("agent"+(i+1),Literal.parseLiteral("position("+agent.x+","+agent.y+",\"O\")"));
         	addPercept("agent"+(i+1),Literal.parseLiteral("nest"));
